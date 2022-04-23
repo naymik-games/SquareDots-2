@@ -66,14 +66,19 @@ class Draw3 {
     }
     this.addSpecial(3, wildValue)
     this.addSpecial(3, goldenValue)
+    this.addSpecial(2, 'gem')
     this.fillValues()
     //console.log(this.gameArrayExtra)
   }
   addSpecial(count, value) {
+
     var i = 0
     while (i < count) {
       var row = Phaser.Math.Between(0, this.getRows() - 2)
       var col = Phaser.Math.Between(0, this.getColumns() - 1)
+      if (value == 'gem') {
+        value = Phaser.Math.Between(6, 11)
+      }
       if (this.valueAt(row, col) == null) {
         this.setValueAt(row, col, value)
         i++
@@ -135,7 +140,7 @@ class Draw3 {
    } */
   //check for tiles that can't be selected
   checkNonSelect(row, column) {
-    return this.valueAt(row, column) == goldenValue //|| this.valueAt(row, column) == 24 || this.valueAt(row, column) == 17 || this.valueAt(row, column) == 18 || this.valueAt(row, column) == 19 || this.valueAt(row, column) == 20 || this.valueAt(row, column) == 21 || this.valueAt(row, column) == 22 || this.valueAtExtra(row, column) == 31;
+    return this.valueAt(row, column) == goldenValue || gemValues.indexOf(this.valueAt(row, column)) > -1  //|| this.valueAt(row, column) == 24 || this.valueAt(row, column) == 17 || this.valueAt(row, column) == 18 || this.valueAt(row, column) == 19 || this.valueAt(row, column) == 20 || this.valueAt(row, column) == 21 || this.valueAt(row, column) == 22 || this.valueAtExtra(row, column) == 31;
   }
   //makes square
   makesSquare(row, column) {
@@ -284,7 +289,7 @@ class Draw3 {
   // clears the chain and returns the items
   emptyChain() {
     let result = [];
-    this.chain.forEach(function (item) {
+    this.chain.forEach(function(item) {
       result.push(item);
     })
     this.chain = [];
@@ -293,7 +298,7 @@ class Draw3 {
   }
   getChain() {
     let result = [];
-    this.chain.forEach(function (item) {
+    this.chain.forEach(function(item) {
       result.push(item);
     })
 
@@ -303,7 +308,7 @@ class Draw3 {
   destroyChain() {
 
     let result = [];
-    this.chain.forEach(function (item) {
+    this.chain.forEach(function(item) {
       result.push(item);
       this.setEmpty(item.row, item.column)
     }.bind(this))
@@ -333,16 +338,16 @@ class Draw3 {
     this.gameArray[row][column] = Object.assign(this.gameArray[row2][column2]);
     this.gameArray[row2][column2] = Object.assign(tempObject);
     return [{
-      row: row,
-      column: column,
-      deltaRow: row - row2,
-      deltaColumn: column - column2
+        row: row,
+        column: column,
+        deltaRow: row - row2,
+        deltaColumn: column - column2
     },
-    {
-      row: row2,
-      column: column2,
-      deltaRow: row2 - row,
-      deltaColumn: column2 - column
+      {
+        row: row2,
+        column: column2,
+        deltaRow: row2 - row,
+        deltaColumn: column2 - column
     }]
   }
 
@@ -423,7 +428,7 @@ class Draw3 {
   }
   getRandomWithOneExclusion(lengthOfArray, indexToExclude) {
 
-    var rand = null;  //an integer
+    var rand = null; //an integer
 
     while (rand === null || rand === indexToExclude) {
       rand = Math.round(Math.random() * (lengthOfArray - 1));

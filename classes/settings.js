@@ -13,17 +13,9 @@ let gameOptions = {
 }
 let wildValue = 24
 let goldenValue = 25
+let gemValues = [6, 7, 8, 9, 10, 11]
 
-let tally = {
-  red: 0,
-  blue: 0,
-  orange: 0,
-  green: 0,
-  purple: 0,
-  brown: 0,
-  gold: 0
-}
-
+let tally;
 
 let gameSettings;
 var defaultValues = {
