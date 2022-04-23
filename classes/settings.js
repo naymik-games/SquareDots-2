@@ -14,6 +14,17 @@ let gameOptions = {
 let wildValue = 24
 let goldenValue = 25
 
+let tally = {
+  red: 0,
+  blue: 0,
+  orange: 0,
+  green: 0,
+  purple: 0,
+  brown: 0,
+  gold: 0
+}
+
+
 let gameSettings;
 var defaultValues = {
   mostDotsMoves: 0,

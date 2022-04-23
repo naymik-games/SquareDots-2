@@ -38,6 +38,15 @@ class playGame extends Phaser.Scene {
         });
     }
     create() {
+        tally  = {
+           red: 0,
+           blue: 0,
+           orange: 0,
+           green: 0,
+           purple: 0,
+           brown: 0,
+           gold: 0
+         }
         this.canPick = true;
         this.square = false;
         this.dragging = false;
@@ -141,7 +150,9 @@ class playGame extends Phaser.Scene {
             else {
                 this.moveValue = this.draw3.getChainValue()
                 let gemsToRemove = this.draw3.destroyChain();
-                console.log(gemsToRemove)
+                //console.log(gemsToRemove)
+                this.doTally(gemsToRemove)
+                //console.log(tally)
                 //do tally with gems to remove
                 let destroyed = 0;
                 gemsToRemove.forEach(function (gem) {
@@ -239,6 +250,25 @@ class playGame extends Phaser.Scene {
         }
         console.log(result)
         return result
+    }
+    doTally(gems){
+     gems.forEach(function(item) {
+        if(item.value == 0){
+          tally.red++
+        } else if (item.value == 1) {
+          tally.blue++
+        } else if (item.value == 2) {
+          tally.orange++
+        } else if (item.value == 3) {
+          tally.green++
+        } else if (item.value == 4) {
+          tally.purple++
+        } else if (item.value == 5) {
+          tally.brown++
+        } else if(item.value == goldenValue){
+          tally.gold++
+        }
+      })
     }
     displayPath() {
         let path = this.draw3.getPath();
