@@ -54,19 +54,26 @@ class Draw3 {
         this.gameArray[i][j] = {
           value: null,
           isEmpty: false,
-          isRover: false,
-          isGolden: false,
-          isWild: false,
-          isGem: false,
+          roverValue: null,
           row: i,
           column: j
         }
         this.gameArrayExtra[i][j] = null
       }
     }
-    this.addSpecial(3, wildValue)
-    this.addSpecial(3, goldenValue)
-    this.addSpecial(2, 'gem')
+    if (levelSettings.allowWild) {
+      this.addSpecial(3, wildValue)
+    }
+    if (levelSettings.allowGems) {
+      this.addSpecial(2, 'gem')
+    }
+    if (levelSettings.allowGolden) {
+      this.addSpecial(3, goldenValue)
+    }
+    if (levelSettings.allowRover) {
+      this.addSpecial(3, 'rover')
+    }
+
     this.fillValues()
     //console.log(this.gameArrayExtra)
   }
@@ -76,11 +83,20 @@ class Draw3 {
     while (i < count) {
       var row = Phaser.Math.Between(0, this.getRows() - 2)
       var col = Phaser.Math.Between(0, this.getColumns() - 1)
-      if (value == 'gem') {
-        value = Phaser.Math.Between(6, 11)
-      }
+
       if (this.valueAt(row, col) == null) {
-        this.setValueAt(row, col, value)
+        if (value == 'gem') {
+          var num = Phaser.Math.Between(6, 5 + levelSettings.items)
+          this.setValueAt(row, col, num)
+        } else if (value == 'rover') {
+          var num = Phaser.Math.Between(12, 11 + levelSettings.items)
+          this.setValueAt(row, col, num - 12)
+          this.setRoverValueAt(row, col, num)
+
+        } else {
+          this.setValueAt(row, col, value)
+        }
+
         i++
       }
     }
@@ -108,9 +124,23 @@ class Draw3 {
     }
     return this.gameArray[row][column].value;
   }
+  //rover value
+  roverValueAt(row, column) {
+    if (!this.validPick(row, column)) {
+      return false;
+    }
+    return this.gameArray[row][column].roverValue;
+  }
   //set the value for the item row, column
   setValueAt(row, column, value) {
     this.gameArray[row][column].value = value
+  }
+  //sets the rover value
+  setRoverValueAt(row, column, value) {
+    this.gameArray[row][column].roverValue = value
+  }
+  isRover(row, column) {
+    return this.gameArray[row][column].roverValue != null
   }
   // sets a custom data of the item at (row, column)
   setCustomData(row, column, customData) {
@@ -179,7 +209,7 @@ class Draw3 {
       }
       if (isSquare) {
         let deltaColumn = this.getNthChainItem(this.getChainLength - 4).column - this.getNthChainItem(this.getChainLength - 1).column;
-        let deltaRow = this.getNthChainItem(this.getChainLength - 1).row - this.getNthChainItem(this.getChainLength - 4).row;
+        let deltaRow = this.getNthChainItem(this.getChainLength - 4).row - this.getNthChainItem(this.getChainLength - 1).row;
         let direction = 0
         direction += (deltaColumn < 0) ? Draw3.LEFT : ((deltaColumn > 0) ? Draw3.RIGHT : 0);
         direction += (deltaRow < 0) ? Draw3.UP : ((deltaRow > 0) ? Draw3.DOWN : 0);
@@ -241,18 +271,19 @@ class Draw3 {
     for (let i = 0; i < this.getRows(); i++) {
       for (let j = 0; j < this.getColumns(); j++) {
         if (this.valueAt(i, j) == squareVal && !this.isInChain(i, j)) {
-          this.putInChain(i, j, this.valueAt(i, j))
+          this.putInChain(i, j, this.valueAt(i, j), this.roverValueAt(i, j))
         }
 
       }
     }
   }
   // puts the item at (row, column) in the chain
-  putInChain(row, column, value) {
+  putInChain(row, column, value, rValue) {
     this.chain.push({
       row: row,
       column: column,
-      value: value
+      value: value,
+      roverValue: rValue
     })
   }
   putCrossInChain(row, column) {
@@ -263,7 +294,7 @@ class Draw3 {
     for (let i = 0; i < this.getRows(); i++) {
       for (let j = 0; j < this.getColumns(); j++) {
         if (j == column && !this.isInChain(i, j)) {
-          this.putInChain(i, j, this.draw3.valueAt(i, j))
+          this.putInChain(i, j, this.valueAt(i, j), this.roverValueAt(i, j))
           this.customDataOf(i, j).setScale(.8)
         }
 
@@ -274,7 +305,7 @@ class Draw3 {
     for (let i = 0; i < this.getRows(); i++) {
       for (let j = 0; j < this.getColumns(); j++) {
         if (i == row && !this.isInChain(i, j)) {
-          this.putInChain(i, j, this.draw3.valueAt(i, j))
+          this.putInChain(i, j, this.valueAt(i, j), this.roverValueAt(i, j))
           this.customDataOf(i, j).setScale(.8)
         }
 
@@ -289,7 +320,7 @@ class Draw3 {
   // clears the chain and returns the items
   emptyChain() {
     let result = [];
-    this.chain.forEach(function(item) {
+    this.chain.forEach(function (item) {
       result.push(item);
     })
     this.chain = [];
@@ -298,7 +329,7 @@ class Draw3 {
   }
   getChain() {
     let result = [];
-    this.chain.forEach(function(item) {
+    this.chain.forEach(function (item) {
       result.push(item);
     })
 
@@ -308,9 +339,12 @@ class Draw3 {
   destroyChain() {
 
     let result = [];
-    this.chain.forEach(function(item) {
-      result.push(item);
-      this.setEmpty(item.row, item.column)
+    this.chain.forEach(function (item) {
+      if (item.roverValue == null) {
+        result.push(item);
+        this.setEmpty(item.row, item.column)
+      }
+
     }.bind(this))
     this.chain = [];
     this.chain.length = 0;
@@ -338,16 +372,16 @@ class Draw3 {
     this.gameArray[row][column] = Object.assign(this.gameArray[row2][column2]);
     this.gameArray[row2][column2] = Object.assign(tempObject);
     return [{
-        row: row,
-        column: column,
-        deltaRow: row - row2,
-        deltaColumn: column - column2
+      row: row,
+      column: column,
+      deltaRow: row - row2,
+      deltaColumn: column - column2
     },
-      {
-        row: row2,
-        column: column2,
-        deltaRow: row2 - row,
-        deltaColumn: column2 - column
+    {
+      row: row2,
+      column: column2,
+      deltaRow: row2 - row,
+      deltaColumn: column2 - column
     }]
   }
 
@@ -416,11 +450,9 @@ class Draw3 {
             deltaColumn: 0
           });
           this.gameArray[j][i].value = randomValue;
+          this.gameArray[j][i].roverValue = -1;
           this.gameArray[j][i].isEmpty = false;
-          this.gameArray[j][i].isWild = false;
-          this.gameArray[j][i].isGolden = false;
-          this.gameArray[j][i].isGem = false;
-          this.gameArray[j][i].isRover = false;
+
         }
       }
     }
