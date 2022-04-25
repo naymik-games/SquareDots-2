@@ -1,4 +1,5 @@
 let dirs = [{ r: -1, c: 0 }, { r: -1, c: 1 }, { r: 0, c: 1 }, { r: 1, c: 1 }, { r: 1, c: 0 }, { r: 1, c: -1 }, { r: 0, c: -1 }, { r: -1, c: -1 }]
+let dirs4 = [{ r: -1, c: 0 }, { r: 0, c: 1 }, { r: 1, c: 0 }, { r: 0, c: -1 }];
 class Draw3 {
 
   // constructor, simply turns obj information into class properties and creates
@@ -153,11 +154,11 @@ class Draw3 {
     if (!this.validPick(row, column)) {
       return false;
     }
-    if(this.extraEmpty(row, column)){return}
+    if (this.extraEmpty(row, column)) { return }
     return this.gameArrayExtra[row][column].value;
   }
   extraEmpty(row, column) {
-    
+
     return this.gameArrayExtra[row][column] == null;
   }
   //rover value
@@ -171,6 +172,10 @@ class Draw3 {
   setValueAt(row, column, value) {
     this.gameArray[row][column].value = value
   }
+  setValueAtExtra(row, column, value) {
+    if (this.extraEmpty(row, column)) { return }
+    this.gameArrayExtra[row][column].value = value
+  }
   //sets the rover value
   setRoverValueAt(row, column, value) {
     this.gameArray[row][column].roverValue = value
@@ -182,7 +187,7 @@ class Draw3 {
   setCustomData(row, column, customData) {
     this.gameArray[row][column].customData = customData;
   }
-setCustomDataExtra(row, column, customData) {
+  setCustomDataExtra(row, column, customData) {
     this.gameArrayExtra[row][column].customData = customData;
   }
 
@@ -190,7 +195,9 @@ setCustomDataExtra(row, column, customData) {
   customDataOf(row, column) {
     return this.gameArray[row][column].customData;
   }
-
+  customDataOfExtra(row, column) {
+    return this.gameArrayExtra[row][column].customData;
+  }
   // returns true if the item at (row, column) continues the chain
   continuesChain(row, column) {
     if (this.valueAt(this.getNthChainItem(0).row, this.getNthChainItem(0).column) == wildValue) {
@@ -370,7 +377,7 @@ setCustomDataExtra(row, column, customData) {
   // clears the chain and returns the items
   emptyChain() {
     let result = [];
-    this.chain.forEach(function(item) {
+    this.chain.forEach(function (item) {
       result.push(item);
     })
     this.chain = [];
@@ -379,7 +386,7 @@ setCustomDataExtra(row, column, customData) {
   }
   getChain() {
     let result = [];
-    this.chain.forEach(function(item) {
+    this.chain.forEach(function (item) {
       result.push(item);
     })
 
@@ -389,7 +396,7 @@ setCustomDataExtra(row, column, customData) {
   destroyChain() {
 
     let result = [];
-    this.chain.forEach(function(item) {
+    this.chain.forEach(function (item) {
       // if (item.roverValue == null) {
       result.push(item);
       this.setEmpty(item.row, item.column)
@@ -422,16 +429,16 @@ setCustomDataExtra(row, column, customData) {
     this.gameArray[row][column] = Object.assign(this.gameArray[row2][column2]);
     this.gameArray[row2][column2] = Object.assign(tempObject);
     return [{
-        row: row,
-        column: column,
-        deltaRow: row - row2,
-        deltaColumn: column - column2
+      row: row,
+      column: column,
+      deltaRow: row - row2,
+      deltaColumn: column - column2
     },
-      {
-        row: row2,
-        column: column2,
-        deltaRow: row2 - row,
-        deltaColumn: column2 - column
+    {
+      row: row2,
+      column: column2,
+      deltaRow: row2 - row,
+      deltaColumn: column2 - column
     }]
   }
 
@@ -439,7 +446,9 @@ setCustomDataExtra(row, column, customData) {
   setEmpty(row, column) {
     this.gameArray[row][column].isEmpty = true;
   }
-
+  setEmptyExtra(row, column) {
+    this.gameArrayExtra[row][column] = null;
+  }
   // returns true if the item at (row, column) is empty
   isEmpty(row, column) {
     return this.gameArray[row][column].isEmpty;
@@ -517,6 +526,21 @@ setCustomDataExtra(row, column, customData) {
     }
 
     return rand;
+  }
+  isNeighborFire(row, column) {
+    var result = [];
+    for (var n = 0; n < 4; n++) {
+      var rand = Phaser.Math.Between(0, levelSettings.items - 1)
+      if (this.validPick(row + dirs4[n].r, column + dirs4[n].c) && this.valueAt(row + dirs4[n].r, column + dirs4[n].c) == fireValue) {
+        this.gameArray[row + dirs4[n].r][column + dirs4[n].c].customData.setFrame(rand)
+        this.gameArray[row + dirs4[n].r][column + dirs4[n].c].value = rand;
+
+        result.push({ r: row + dirs4[n].r, c: column + dirs4[n].c })
+      }
+    }
+    if (result.length > 0) {
+      return true;
+    }
   }
 }
 Draw3.RIGHT = 1;
