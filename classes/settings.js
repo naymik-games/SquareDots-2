@@ -15,6 +15,8 @@ let wildValue = 24
 let goldenValue = 25
 let gemValues = [6, 7, 8, 9, 10, 11]
 let roverValues = [12, 13, 14, 15, 16, 17]
+let fireValue = 26;
+let iceValues = [18,19,20];
 let tally;
 
 let gameSettings;

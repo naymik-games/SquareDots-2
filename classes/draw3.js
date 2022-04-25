@@ -1,3 +1,4 @@
+let dirs = [{ r: -1, c: 0 }, { r: -1, c: 1 }, { r: 0, c: 1 }, { r: 1, c: 1 }, { r: 1, c: 0 }, { r: 1, c: -1 }, { r: 0, c: -1 }, { r: -1, c: -1 }]
 class Draw3 {
 
   // constructor, simply turns obj information into class properties and creates
@@ -64,6 +65,9 @@ class Draw3 {
     if (levelSettings.allowWild) {
       this.addSpecial(3, wildValue)
     }
+    if (levelSettings.allowFire) {
+      this.addSpecial(3, fireValue)
+    }
     if (levelSettings.allowGems) {
       this.addSpecial(2, 'gem')
     }
@@ -73,7 +77,9 @@ class Draw3 {
     if (levelSettings.allowRover) {
       this.addSpecial(3, 'rover')
     }
-
+    if (levelSettings.allowIce) {
+      this.addIce(3)
+    }
     this.fillValues()
     //console.log(this.gameArrayExtra)
   }
@@ -96,6 +102,25 @@ class Draw3 {
         } else {
           this.setValueAt(row, col, value)
         }
+
+        i++
+      }
+    }
+  }
+  addIce(count) {
+
+    var i = 0
+    while (i < count) {
+      var row = Phaser.Math.Between(0, this.getRows() - 2)
+      var col = Phaser.Math.Between(0, this.getColumns() - 1)
+
+      if (this.extraEmpty(row, col)) {
+        var ice = {
+          value: iceValues[0],
+          type: 'ice'
+        }
+
+        this.gameArrayExtra[row][col] = ice
 
         i++
       }
@@ -124,6 +149,17 @@ class Draw3 {
     }
     return this.gameArray[row][column].value;
   }
+  valueAtExtra(row, column) {
+    if (!this.validPick(row, column)) {
+      return false;
+    }
+    if(this.extraEmpty(row, column)){return}
+    return this.gameArrayExtra[row][column].value;
+  }
+  extraEmpty(row, column) {
+    
+    return this.gameArrayExtra[row][column] == null;
+  }
   //rover value
   roverValueAt(row, column) {
     if (!this.validPick(row, column)) {
@@ -145,6 +181,9 @@ class Draw3 {
   // sets a custom data of the item at (row, column)
   setCustomData(row, column, customData) {
     this.gameArray[row][column].customData = customData;
+  }
+setCustomDataExtra(row, column, customData) {
+    this.gameArrayExtra[row][column].customData = customData;
   }
 
   // returns the custom data of the item at (row, column)
@@ -170,7 +209,7 @@ class Draw3 {
    } */
   //check for tiles that can't be selected
   checkNonSelect(row, column) {
-    return this.valueAt(row, column) == goldenValue || gemValues.indexOf(this.valueAt(row, column)) > -1  //|| this.valueAt(row, column) == 24 || this.valueAt(row, column) == 17 || this.valueAt(row, column) == 18 || this.valueAt(row, column) == 19 || this.valueAt(row, column) == 20 || this.valueAt(row, column) == 21 || this.valueAt(row, column) == 22 || this.valueAtExtra(row, column) == 31;
+    return this.valueAt(row, column) == goldenValue || this.valueAt(row, column) == fireValue || gemValues.indexOf(this.valueAt(row, column)) > -1 //|| this.valueAt(row, column) == 24 || this.valueAt(row, column) == 17 || this.valueAt(row, column) == 18 || this.valueAt(row, column) == 19 || this.valueAt(row, column) == 20 || this.valueAt(row, column) == 21 || this.valueAt(row, column) == 22 || this.valueAtExtra(row, column) == 31;
   }
   //makes square
   makesSquare(row, column) {
@@ -235,7 +274,18 @@ class Draw3 {
     }
     return result;
   }
-
+  //returns array of valid neighbor coord
+  getNeighbors(row, column) {
+    var result = []
+    for (var i = 0; i < 8; i++) {
+      var nR = row + dirs[i].r
+      var nC = column + dirs[i].c
+      if (this.validPick(nR, nC)) {
+        result.push({ row: nR, col: nC })
+      }
+    }
+    return result
+  }
   // returns true if the number represents a diagonal movement
   isDiagonal(n) {
     return this.getDirections(n).length == 2;
@@ -320,7 +370,7 @@ class Draw3 {
   // clears the chain and returns the items
   emptyChain() {
     let result = [];
-    this.chain.forEach(function (item) {
+    this.chain.forEach(function(item) {
       result.push(item);
     })
     this.chain = [];
@@ -329,7 +379,7 @@ class Draw3 {
   }
   getChain() {
     let result = [];
-    this.chain.forEach(function (item) {
+    this.chain.forEach(function(item) {
       result.push(item);
     })
 
@@ -339,11 +389,11 @@ class Draw3 {
   destroyChain() {
 
     let result = [];
-    this.chain.forEach(function (item) {
-      if (item.roverValue == null) {
-        result.push(item);
-        this.setEmpty(item.row, item.column)
-      }
+    this.chain.forEach(function(item) {
+      // if (item.roverValue == null) {
+      result.push(item);
+      this.setEmpty(item.row, item.column)
+      //   }
 
     }.bind(this))
     this.chain = [];
@@ -372,16 +422,16 @@ class Draw3 {
     this.gameArray[row][column] = Object.assign(this.gameArray[row2][column2]);
     this.gameArray[row2][column2] = Object.assign(tempObject);
     return [{
-      row: row,
-      column: column,
-      deltaRow: row - row2,
-      deltaColumn: column - column2
+        row: row,
+        column: column,
+        deltaRow: row - row2,
+        deltaColumn: column - column2
     },
-    {
-      row: row2,
-      column: column2,
-      deltaRow: row2 - row,
-      deltaColumn: column2 - column
+      {
+        row: row2,
+        column: column2,
+        deltaRow: row2 - row,
+        deltaColumn: column2 - column
     }]
   }
 

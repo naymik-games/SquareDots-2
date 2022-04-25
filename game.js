@@ -2,7 +2,7 @@ let game;
 
 
 
-window.onload = function () {
+window.onload = function() {
   let gameConfig = {
     type: Phaser.AUTO,
     scale: {
@@ -45,7 +45,9 @@ class playGame extends Phaser.Scene {
       allowWild: false,
       allowGems: false,
       allowGolden: false,
-      allowRover: true
+      allowRover: false,
+      allowFire: false,
+      allowIce: true
     }
 
     tally = {
@@ -78,9 +80,10 @@ class playGame extends Phaser.Scene {
     });
     this.draw3.generateField();
     this.drawField();
+    this.drawFieldExtra()
     this.input.on("pointerdown", this.gemSelect, this);
     this.input.on("pointermove", this.drawPath, this);
-    this.input.on("pointerup", function () {
+    this.input.on("pointerup", function() {
       this.removeGems(2)
     }, this);
   }
@@ -105,6 +108,21 @@ class playGame extends Phaser.Scene {
         arrow.visible = false;
         this.arrowArray[i][j] = arrow;
         this.draw3.setCustomData(i, j, gem);
+      }
+    }
+    
+  }
+  drawFieldExtra(){
+    for (let i = 0; i < this.draw3.getRows(); i++) {
+      for (let j = 0; j < this.draw3.getColumns(); j++) {
+        if(this.draw3.valueAtExtra(i, j) == iceValues[0]){
+          console.log('making ice')
+        let gem;
+        let posX = gameOptions.boardOffset.x + gameOptions.gemSize * j + gameOptions.gemSize / 2;
+        let posY = gameOptions.boardOffset.y + gameOptions.gemSize * i + gameOptions.gemSize / 2
+        gem = this.add.sprite(posX, posY, "gems", this.draw3.valueAtExtra(i, j)).setDepth(4);
+        this.draw3.setCustomDataExtra(i,j,gem)
+        }
       }
     }
   }
@@ -151,7 +169,7 @@ class playGame extends Phaser.Scene {
               //this.displayPath(this.square)
               this.draw3.addSquareToChain()
               let chain = this.draw3.getChain();
-              chain.forEach(function (item) {
+              chain.forEach(function(item) {
                 this.draw3.customDataOf(item.row, item.column).alpha = .5;
                 this.draw3.customDataOf(item.row, item.column).setScale(.8)
               }.bind(this));
@@ -169,7 +187,7 @@ class playGame extends Phaser.Scene {
       this.dragging = false;
       if (this.draw3.getChainLength() < min) {
         let chain = this.draw3.emptyChain();
-        chain.forEach(function (item) {
+        chain.forEach(function(item) {
           this.draw3.customDataOf(item.row, item.column).alpha = 1;
           this.draw3.customDataOf(item.row, item.column).setScale(1)
         }.bind(this));
@@ -183,7 +201,7 @@ class playGame extends Phaser.Scene {
         //console.log(tally)
         //do tally with gems to remove
         let destroyed = 0;
-        gemsToRemove.forEach(function (gem) {
+        gemsToRemove.forEach(function(gem) {
           this.poolArray.push(this.draw3.customDataOf(gem.row, gem.column))
           destroyed++;
           this.tweens.add({
@@ -191,7 +209,7 @@ class playGame extends Phaser.Scene {
             alpha: 0,
             duration: gameOptions.destroySpeed,
             callbackScope: this,
-            onComplete: function (event, sprite) {
+            onComplete: function(event, sprite) {
               destroyed--;
               if (destroyed == 0) {
                 this.makeGemsFall();
@@ -205,14 +223,14 @@ class playGame extends Phaser.Scene {
   makeGemsFall() {
     let moved = 0;
     let fallingMovements = this.draw3.arrangeBoardAfterChain();
-    fallingMovements.forEach(function (movement) {
+    fallingMovements.forEach(function(movement) {
       moved++;
       this.tweens.add({
         targets: this.draw3.customDataOf(movement.row, movement.column),
         y: this.draw3.customDataOf(movement.row, movement.column).y + movement.deltaRow * gameOptions.gemSize,
         duration: gameOptions.fallSpeed * Math.abs(movement.deltaRow),
         callbackScope: this,
-        onComplete: function () {
+        onComplete: function() {
           moved--;
           if (moved == 0) {
             this.canPick = true;
@@ -221,7 +239,7 @@ class playGame extends Phaser.Scene {
       })
     }.bind(this));
     let replenishMovements = this.draw3.replenishBoard(this.square, this.moveValue);
-    replenishMovements.forEach(function (movement) {
+    replenishMovements.forEach(function(movement) {
       moved++;
       let sprite = this.poolArray.pop();
       sprite.alpha = 1;
@@ -235,7 +253,7 @@ class playGame extends Phaser.Scene {
         y: gameOptions.boardOffset.y + gameOptions.gemSize * movement.row + gameOptions.gemSize / 2,
         duration: gameOptions.fallSpeed * movement.deltaRow,
         callbackScope: this,
-        onComplete: function () {
+        onComplete: function() {
           moved--;
           if (moved == 0) {
             if (this.gemCheck()) {
@@ -249,9 +267,14 @@ class playGame extends Phaser.Scene {
             } else if (this.goldenCheck()) {
               this.dragging = true;
               this.removeGems(1)
+            } else if (levelSettings.allowFire) {
+              this.growFire()
+              this.canPick = true;
+              this.dragging = false;
             } else {
               this.canPick = true;
               this.dragging = false;
+
             }
             // 
 
@@ -295,8 +318,46 @@ class playGame extends Phaser.Scene {
     }
     return result
   }
+  growFire() {
+    for (let i = 0; i < this.draw3.getRows(); i++) {
+      for (let j = 0; j < this.draw3.getColumns(); j++) {
+        if (this.draw3.valueAt(i, j) == fireValue) {
+          var neighbors = this.draw3.getNeighbors(i, j)
+          if (neighbors.length > 0) {
+            var tile = neighbors[Math.floor(Math.random() * neighbors.length)]
+            this.draw3.setValueAt(tile.row, tile.col, fireValue)
+            this.draw3.customDataOf(tile.row, tile.col).setFrame(fireValue)
+
+            var tween = this.tweens.add({
+              targets: this.draw3.customDataOf(tile.row, tile.col),
+              alpha: 0,
+              duration: 200,
+              yoyo: true,
+              onYoyoScope: this,
+              onYoyo: function() {
+                
+              }
+            })
+          }
+          // this.draw3.customDataOf(i, j).setAlpha(.2)
+
+
+        }
+      }
+    }
+  }
   doTally(gems) {
-    gems.forEach(function (item) {
+    gems.forEach(function(item) {
+      if(levelSettings.allowIce){
+        var val = this.draw3.valueAtExtra(item.row, item.column)
+        if(val == iceValues[0]){
+          //set to next
+        } else if (val == iceValues[1]) {
+         // set to next
+        } else if (val == iceValues[0]) {
+         // delete
+        }
+      }
       if (item.value == 0) {
         tally.red++
       } else if (item.value == 1) {
@@ -312,7 +373,7 @@ class playGame extends Phaser.Scene {
       } else if (item.value == goldenValue) {
         tally.gold++
       }
-    })
+    }.bind(this))
     if (this.square) {
       //this.squareText.setText(this.moveValue)
 
@@ -335,7 +396,7 @@ class playGame extends Phaser.Scene {
   }
   displayPath() {
     let path = this.draw3.getPath();
-    path.forEach(function (item) {
+    path.forEach(function(item) {
       this.arrowArray[item.row][item.column].visible = true;
       if (!this.draw3.isDiagonal(item.direction)) {
         this.arrowArray[item.row][item.column].setFrame(0);
@@ -348,8 +409,8 @@ class playGame extends Phaser.Scene {
     }.bind(this))
   }
   hidePath() {
-    this.arrowArray.forEach(function (item) {
-      item.forEach(function (subItem) {
+    this.arrowArray.forEach(function(item) {
+      item.forEach(function(subItem) {
         subItem.visible = false;
         subItem.angle = 0;
       })
