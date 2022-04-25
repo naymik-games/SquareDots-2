@@ -78,8 +78,14 @@ class Draw3 {
     if (levelSettings.allowRover) {
       this.addSpecial(3, 'rover')
     }
+    if (levelSettings.blocks.length > 0) {
+      this.addBlocks()
+    }
     if (levelSettings.allowIce) {
       this.addIce(3)
+    }
+    if (levelSettings.allowBomb) {
+      this.addBomb(3)
     }
     this.fillValues()
     //console.log(this.gameArrayExtra)
@@ -112,7 +118,7 @@ class Draw3 {
 
     var i = 0
     while (i < count) {
-      var row = Phaser.Math.Between(0, this.getRows() - 2)
+      var row = Phaser.Math.Between(0, this.getRows() - 1)
       var col = Phaser.Math.Between(0, this.getColumns() - 1)
 
       if (this.extraEmpty(row, col)) {
@@ -125,6 +131,37 @@ class Draw3 {
 
         i++
       }
+    }
+  }
+  addBomb(count) {
+
+    var i = 0
+    while (i < count) {
+      var row = Phaser.Math.Between(0, this.getRows() - 1)
+      var col = Phaser.Math.Between(0, this.getColumns() - 1)
+
+      if (this.extraEmpty(row, col)) {
+        var bomb = {
+          value: bombValues[0],
+          type: 'bomb'
+        }
+
+        this.gameArrayExtra[row][col] = bomb
+
+        i++
+      }
+    }
+  }
+  addBlocks() {
+    for (let x = 0; x < levelSettings.blocks.length; x++) {
+
+      var j = levelSettings.blocks[x].col;
+      var i = levelSettings.blocks[x].row;
+      var block = {
+        value: blockValue,
+        type: 'block'
+      }
+      this.gameArrayExtra[i][j] = block
     }
   }
   fillValues() {
@@ -216,7 +253,7 @@ class Draw3 {
    } */
   //check for tiles that can't be selected
   checkNonSelect(row, column) {
-    return this.valueAt(row, column) == goldenValue || this.valueAt(row, column) == fireValue || gemValues.indexOf(this.valueAt(row, column)) > -1 //|| this.valueAt(row, column) == 24 || this.valueAt(row, column) == 17 || this.valueAt(row, column) == 18 || this.valueAt(row, column) == 19 || this.valueAt(row, column) == 20 || this.valueAt(row, column) == 21 || this.valueAt(row, column) == 22 || this.valueAtExtra(row, column) == 31;
+    return this.valueAt(row, column) == goldenValue || this.valueAt(row, column) == fireValue || gemValues.indexOf(this.valueAt(row, column)) > -1 || this.valueAtExtra(row, column) == blockValue//|| this.valueAt(row, column) == 24 || this.valueAt(row, column) == 17 || this.valueAt(row, column) == 18 || this.valueAt(row, column) == 19 || this.valueAt(row, column) == 20 || this.valueAt(row, column) == 21 || this.valueAt(row, column) == 22 || this.valueAtExtra(row, column) == 31;
   }
   //makes square
   makesSquare(row, column) {
@@ -499,7 +536,7 @@ class Draw3 {
           if (isSquare) {
             randomValue = this.getRandomWithOneExclusion(this.itemArray.length, chainVal)
           } else {
-            randomValue = Math.floor(Math.random() * this.items);
+            randomValue = Math.round(Math.random() * (this.itemArray.length - 1));
           }
 
           result.push({
@@ -513,6 +550,42 @@ class Draw3 {
           this.gameArray[j][i].isEmpty = false;
 
         }
+      }
+    }
+    if (levelSettings.allowGolden) {
+      if (Phaser.Math.Between(1, 100) < 25) {
+        var go = false
+        while (!go) {
+          var tile = result[Phaser.Math.Between(0, result.length - 1)]
+          if (this.gameArray[tile.row][tile.column].value < levelSettings.items - 1) {
+            go = true
+          }
+        }
+        this.gameArray[tile.row][tile.column].value = goldenValue
+      }
+    }
+    if (levelSettings.allowWild) {
+      if (Phaser.Math.Between(1, 100) < 25) {
+        var go = false
+        while (!go) {
+          var tile = result[Phaser.Math.Between(0, result.length - 1)]
+          if (this.gameArray[tile.row][tile.column].value < levelSettings.items - 1) {
+            go = true
+          }
+        }
+        this.gameArray[tile.row][tile.column].value = wildValue
+      }
+    }
+    if (levelSettings.allowGems) {
+      if (Phaser.Math.Between(1, 100) < 25) {
+        var go = false
+        while (!go) {
+          var tile = result[Phaser.Math.Between(0, result.length - 1)]
+          if (this.gameArray[tile.row][tile.column].value < levelSettings.items - 1) {
+            go = true
+          }
+        }
+        this.gameArray[tile.row][tile.column].value = gemValues[levelSettings.items - 1]
       }
     }
     return result;

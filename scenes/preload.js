@@ -79,11 +79,14 @@ class preloadGame extends Phaser.Scene {
       frameWidth: 96,
       frameHeight: 96
     });
-    this.load.spritesheet("gems", "assets/sprites/gems.png", {
+    this.load.spritesheet("gems", "assets/sprites/gems_smaller.png", {
       frameWidth: 100,
       frameHeight: 100
     });
-
+    this.load.spritesheet("burst", "assets/sprites/burst.png", {
+      frameWidth: 100,
+      frameHeight: 100
+    });
     this.load.spritesheet("particle_color", "assets/particles.png", {
       frameWidth: 6,
       frameHeight: 6

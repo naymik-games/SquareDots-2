@@ -39,18 +39,9 @@ class playGame extends Phaser.Scene {
     });
   }
   create() {
-    levelSettings = {
-      items: 5,
-      cols: 7,
-      rows: 8,
-      allowWild: false,
-      allowGems: false,
-      allowGolden: false,
-      allowRover: false,
-      allowFire: true,
-      allowIce: false
-    }
 
+    var xOffset = (game.config.width - (levelSettings.cols * gameOptions.gemSize)) / 2
+    gameOptions.boardOffset.x = xOffset
     tally = {
       red: 0,
       blue: 0,
@@ -61,13 +52,17 @@ class playGame extends Phaser.Scene {
       gold: 0,
       square: 0,
       gem: 0,
-      ice: 0
+      ice: 0,
+      bomb: 0,
+      moves: 0,
+      dots: 0
     }
     this.canPick = true;
     this.square = false;
     this.dragging = false;
     this.doCross = false;
     this.stopFire = false;
+    this.bombCleared = false;
 
     //temp ui
     this.squareText = this.add.bitmapText(50, 1500, 'topaz', 'SV 0', 40).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
@@ -85,13 +80,27 @@ class playGame extends Phaser.Scene {
     this.drawFieldExtra()
     this.input.on("pointerdown", this.gemSelect, this);
     this.input.on("pointermove", this.drawPath, this);
-    this.input.on("pointerup", function () {
+    this.input.on("pointerup", this.endDrag, this);
+    /* this.input.on("pointerup", function () {
       this.removeGems(2)
-    }, this);
+    }, this); */
+    const config1 = {
+      key: 'burst1',
+      frames: 'burst',
+      frameRate: 20,
+      repeat: 0
+    };
+    this.anims.create(config1);
+    this.bursts = this.add.group({
+      defaultKey: 'burst',
+      maxSize: 30
+    });
+    //this.burst = this.add.sprite(200, 300, 'burst').setScale(3);
   }
   drawField() {
     this.poolArray = [];
     this.arrowArray = [];
+    var count = 0
     for (let i = 0; i < this.draw3.getRows(); i++) {
       this.arrowArray[i] = [];
       for (let j = 0; j < this.draw3.getColumns(); j++) {
@@ -100,9 +109,9 @@ class playGame extends Phaser.Scene {
         let posY = gameOptions.boardOffset.y + gameOptions.gemSize * i + gameOptions.gemSize / 2
         if (this.draw3.isRover(i, j)) {
           console.log(i + ',' + j + 'val ' + this.draw3.roverValueAt(i, j))
-          gem = this.add.sprite(posX, posY, "gems", this.draw3.roverValueAt(i, j));
+          gem = this.add.sprite(posX, -50, "gems", this.draw3.roverValueAt(i, j));
         } else {
-          gem = this.add.sprite(posX, posY, "gems", this.draw3.valueAt(i, j));
+          gem = this.add.sprite(posX, -50, "gems", this.draw3.valueAt(i, j));
         }
 
         let arrow = this.add.sprite(posX, posY, "arrows");
@@ -110,20 +119,66 @@ class playGame extends Phaser.Scene {
         arrow.visible = false;
         this.arrowArray[i][j] = arrow;
         this.draw3.setCustomData(i, j, gem);
+        var tween = this.tweens.add({
+          targets: gem,
+          y: posY,
+          duration: 500,
+          ease: 'Quad.easeIn',
+          delay: 50 * count
+        })
+        count++
       }
     }
 
   }
   drawFieldExtra() {
+    var count = 0;
     for (let i = 0; i < this.draw3.getRows(); i++) {
       for (let j = 0; j < this.draw3.getColumns(); j++) {
-        if (this.draw3.valueAtExtra(i, j) == iceValues[0]) {
-          console.log('making ice')
+        if (this.draw3.valueAtExtra(i, j) == blockValue) {
           let gem;
           let posX = gameOptions.boardOffset.x + gameOptions.gemSize * j + gameOptions.gemSize / 2;
           let posY = gameOptions.boardOffset.y + gameOptions.gemSize * i + gameOptions.gemSize / 2
-          gem = this.add.sprite(posX, posY, "gems", this.draw3.valueAtExtra(i, j)).setDepth(4);
+          gem = this.add.sprite(posX, -50, "gems", this.draw3.valueAtExtra(i, j)).setDepth(4);
           this.draw3.setCustomDataExtra(i, j, gem)
+          var tween = this.tweens.add({
+            targets: gem,
+            y: posY,
+            duration: 1000,
+            ease: 'Quad.easeIn',
+            delay: 100 * count
+          })
+          count++
+        } else if (this.draw3.valueAtExtra(i, j) == iceValues[0]) {
+          let gem;
+          let posX = gameOptions.boardOffset.x + gameOptions.gemSize * j + gameOptions.gemSize / 2;
+          let posY = gameOptions.boardOffset.y + gameOptions.gemSize * i + gameOptions.gemSize / 2
+          gem = this.add.sprite(posX, -50, "gems", this.draw3.valueAtExtra(i, j)).setDepth(4);
+          this.draw3.setCustomDataExtra(i, j, gem)
+          var tween = this.tweens.add({
+            targets: gem,
+            y: posY,
+            duration: 1000,
+            ease: 'Quad.easeIn',
+            delay: 100 * count
+          })
+          count++
+        } else if (this.draw3.valueAtExtra(i, j) == bombValues[0]) {
+          let gem;
+          let posX = gameOptions.boardOffset.x + gameOptions.gemSize * j + gameOptions.gemSize / 2;
+          let posY = gameOptions.boardOffset.y + gameOptions.gemSize * i + gameOptions.gemSize / 2
+          gem = this.add.sprite(posX, -50, "gems", this.draw3.valueAtExtra(i, j)).setDepth(4);
+          this.draw3.setCustomDataExtra(i, j, gem)
+          var tween = this.tweens.add({
+            targets: gem,
+            y: posY,
+            duration: 1000,
+            ease: 'Quad.easeIn',
+            delay: 100 * count
+          })
+          count++
+        } else if (levelSettings.blocks.length > 0) {
+          //console.log('do blocks')
         }
       }
     }
@@ -132,6 +187,7 @@ class playGame extends Phaser.Scene {
     this.square = false;
     this.moveValue = null
     this.stopFire = false;
+    this.bombCleared = false;
     if (this.canPick) {
       let row = Math.floor((pointer.y - gameOptions.boardOffset.y) / gameOptions.gemSize);
       let col = Math.floor((pointer.x - gameOptions.boardOffset.x) / gameOptions.gemSize);
@@ -182,6 +238,15 @@ class playGame extends Phaser.Scene {
         }
       }
     }
+  }
+  endDrag() {
+    if (this.draw3.getChainLength() < 2) {
+
+    } else {
+      tally.moves++
+      this.events.emit('moves', { moves: tally.moves })
+    }
+    this.removeGems(2)
   }
   removeGems(min) {
     //console.log(min)
@@ -263,13 +328,16 @@ class playGame extends Phaser.Scene {
           moved--;
           if (moved == 0) {
             if (this.gemCheck()) {
-
+              // this.burst.play('burst1')
               this.dragging = true;
               //console.log(this.draw3.getChainLength())
               //this.draw3.putColInChain(3)
               //this.draw3.putRowInChain(3)
               //this.draw3.putCrossInChain(3, 3)
               this.removeGems(2)
+            } else if (this.bombCleared) {
+              this.dragging = true;
+              this.removeGems(1)
             } else if (this.goldenCheck()) {
               this.dragging = true;
               this.removeGems(1)
@@ -317,6 +385,17 @@ class playGame extends Phaser.Scene {
         if (this.draw3.valueAt(i, j) == gemValues[this.moveValue]) {
           //console.log(i + ',' + j)
           this.draw3.putCrossInChain(i, j)
+          // Get the first explosion, and activate it.
+          var explosion = this.bursts.get().setActive(true);
+
+          // Place the explosion on the screen, and play the animation.
+          explosion.setOrigin(0.5, 0.5).setScale(3);
+          explosion.x = this.draw3.customDataOf(i, j).x;
+          explosion.y = this.draw3.customDataOf(i, j).y;
+          explosion.play('burst1');
+          explosion.on('animationcomplete', function () {
+            explosion.setActive(false);
+          }, this);
           tally.gem++
           result = true
         }
@@ -366,6 +445,7 @@ class playGame extends Phaser.Scene {
 
   }
   doTally(gems) {
+    var totalDotsThisMove = 0
     gems.forEach(function (item) {
       if (levelSettings.allowIce) {
         var val = this.draw3.valueAtExtra(item.row, item.column)
@@ -392,18 +472,51 @@ class playGame extends Phaser.Scene {
           //this.draw3.setEmptyExtra(item.row, item.column)
         }
       }
+      if (levelSettings.allowBomb) {
+        var val = this.draw3.valueAtExtra(item.row, item.column)
+        if (val == bombValues[0]) {
+          //set to next
+          this.draw3.setValueAtExtra(item.row, item.column, bombValues[1])
+          this.draw3.customDataOfExtra(item.row, item.column).setFrame(bombValues[1])
+        } else if (val == bombValues[1]) {
+          // set to next
+          this.draw3.setValueAtExtra(item.row, item.column, bombValues[2])
+          this.draw3.customDataOfExtra(item.row, item.column).setFrame(bombValues[2])
+        } else if (val == bombValues[2]) {
+          // delete
+          this.explodeBomb(item.row, item.column)
+          var tween = this.tweens.add({
+            targets: this.draw3.customDataOfExtra(item.row, item.column),
+            y: -50,
+            duration: 200,
+            onCompleteScope: this,
+            onComplete: function () {
+              this.draw3.setEmptyExtra(item.row, item.column)
+            }
+          })
+          tally.bomb++
+          //this.draw3.setEmptyExtra(item.row, item.column)
+        }
+      }
+
       if (item.value == 0) {
         tally.red++
+        totalDotsThisMove++
       } else if (item.value == 1) {
         tally.blue++
+        totalDotsThisMove++
       } else if (item.value == 2) {
         tally.orange++
+        totalDotsThisMove++
       } else if (item.value == 3) {
         tally.green++
+        totalDotsThisMove++
       } else if (item.value == 4) {
         tally.purple++
+        totalDotsThisMove++
       } else if (item.value == 5) {
         tally.brown++
+        totalDotsThisMove++
       } else if (item.value == goldenValue) {
         tally.gold++
       }
@@ -413,6 +526,8 @@ class playGame extends Phaser.Scene {
 
       tally.square++
     }
+    tally.dots += totalDotsThisMove
+    this.events.emit('dots', { dots: tally.dots });
     this.printTally()
   }
   printTally() {
@@ -427,7 +542,33 @@ class playGame extends Phaser.Scene {
     text += 'Go ' + tally.gold + ' '
     text += 'Ge ' + tally.gem + ' '
     text += 'I ' + tally.ice + ' '
+    text += 'Bo ' + tally.bomb + ' '
+    text += 'M ' + tally.moves + ' '
+    text += 'D ' + tally.dots + ' '
     this.squareText.setText(text)
+  }
+  explodeBomb(row, col) {
+    // Get the first explosion, and activate it.
+    var explosion = this.bursts.get().setActive(true);
+
+    // Place the explosion on the screen, and play the animation.
+    explosion.setOrigin(0.5, 0.5).setScale(3);
+    explosion.x = this.draw3.customDataOf(row, col).x;
+    explosion.y = this.draw3.customDataOf(row, col).y;
+    explosion.play('burst1');
+    explosion.on('animationcomplete', function () {
+      explosion.setActive(false);
+    }, this);
+
+    this.bombCleared = true
+    var neighbors = this.draw3.getNeighbors(row, col)
+    console.log(neighbors)
+    if (neighbors.length > 0) {
+      this.draw3.putInChain(row, col)
+      for (var n = 0; n < neighbors.length; n++) {
+        this.draw3.putInChain(neighbors[n].row, neighbors[n].col)
+      }
+    }
   }
   displayPath() {
     let path = this.draw3.getPath();
