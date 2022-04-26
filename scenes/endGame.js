@@ -34,7 +34,10 @@ class endGame extends Phaser.Scene {
 			if (this.outcome == 1) {
 				this.timeline = this.tweens.createTimeline();
 				var message = 'Success!'
-				gameData.levelStatus[onLevel + 1] = 0;
+				if (gameData.levelStatus[onLevel + 1] == -1) {
+					gameData.levelStatus[onLevel + 1] = 0;
+				}
+
 				if (this.movesLeft < 2) {
 					gameData.levelStatus[onLevel] = 1;
 					var star1 = this.add.image(1450, 850, 'star').setScale(2);
