@@ -14,7 +14,7 @@ window.onload = function () {
     },
 
 
-    scene: [preloadGame, startGame, playGame, UI]
+    scene: [preloadGame, startGame, selectGame, playGame, UI]
   }
   game = new Phaser.Game(gameConfig);
   window.focus();
@@ -39,6 +39,16 @@ class playGame extends Phaser.Scene {
     });
   }
   create() {
+    this.cameras.main.fadeIn(800, 0, 0, 0);
+    var bgc = Phaser.Math.Between(0, bgColors.length - 1)
+    this.cameras.main.setBackgroundColor(bgColors[bgc]);
+
+    var rand = Phaser.Math.Between(0, backs.length - 1)
+    var back = this.add.image(0, 0, backs[rand]).setOrigin(0)
+    back.displayWidth = game.config.width;
+    back.displayHeight = game.config.height;
+
+
 
     var xOffset = (game.config.width - (levelSettings.cols * gameOptions.gemSize)) / 2
     gameOptions.boardOffset.x = xOffset
@@ -95,6 +105,20 @@ class playGame extends Phaser.Scene {
       defaultKey: 'burst',
       maxSize: 30
     });
+
+    const config2 = {
+      key: 'flames1',
+      frames: 'flames',
+      frameRate: 20,
+      repeat: -1
+    };
+    this.anims.create(config2);
+    this.flames = this.add.group({
+      defaultKey: 'flames',
+      maxSize: 30
+    });
+
+    this.makeMenu()
     //this.burst = this.add.sprite(200, 300, 'burst').setScale(3);
   }
   drawField() {
@@ -110,6 +134,11 @@ class playGame extends Phaser.Scene {
         if (this.draw3.isRover(i, j)) {
           console.log(i + ',' + j + 'val ' + this.draw3.roverValueAt(i, j))
           gem = this.add.sprite(posX, -50, "gems", this.draw3.roverValueAt(i, j));
+        } else if (this.draw3.valueAt(i, j) == fireValue) {
+          gem = this.add.sprite(posX, -50, "flames", 0);
+          //gem = this.flames.get().setActive(true);
+          // gem.setPosition(posX, -50)
+          //gem.play('flames1');
         } else {
           gem = this.add.sprite(posX, -50, "gems", this.draw3.valueAt(i, j));
         }
@@ -122,9 +151,9 @@ class playGame extends Phaser.Scene {
         var tween = this.tweens.add({
           targets: gem,
           y: posY,
-          duration: 500,
+          duration: 250,
           ease: 'Quad.easeIn',
-          delay: 50 * count
+          delay: 25 * count
         })
         count++
       }
@@ -146,7 +175,7 @@ class playGame extends Phaser.Scene {
             y: posY,
             duration: 1000,
             ease: 'Quad.easeIn',
-            delay: 100 * count
+            delay: 150 * count
           })
           count++
         } else if (this.draw3.valueAtExtra(i, j) == iceValues[0]) {
@@ -160,7 +189,7 @@ class playGame extends Phaser.Scene {
             y: posY,
             duration: 1000,
             ease: 'Quad.easeIn',
-            delay: 100 * count
+            delay: 150 * count
           })
           count++
         } else if (this.draw3.valueAtExtra(i, j) == bombValues[0]) {
@@ -174,7 +203,7 @@ class playGame extends Phaser.Scene {
             y: posY,
             duration: 1000,
             ease: 'Quad.easeIn',
-            delay: 100 * count
+            delay: 150 * count
           })
           count++
         } else if (levelSettings.blocks.length > 0) {
@@ -244,7 +273,7 @@ class playGame extends Phaser.Scene {
 
     } else {
       tally.moves++
-      this.events.emit('moves', { moves: tally.moves })
+
     }
     this.removeGems(2)
   }
@@ -272,6 +301,9 @@ class playGame extends Phaser.Scene {
         gemsToRemove.forEach(function (gem) {
           if (this.draw3.isNeighborFire(gem.row, gem.column)) {
             this.stopFire = true
+          }
+          if (this.draw3.customDataOf(gem.row, gem.column).texture.key == 'flames') {
+            this.draw3.customDataOf(gem.row, gem.column).setTexture('gems', 0)
           }
           this.poolArray.push(this.draw3.customDataOf(gem.row, gem.column))
           destroyed++;
@@ -348,7 +380,7 @@ class playGame extends Phaser.Scene {
             } else {
               this.canPick = true;
               this.dragging = false;
-
+              this.events.emit('moves', { moves: tally.moves })
             }
             // 
 
@@ -423,7 +455,7 @@ class playGame extends Phaser.Scene {
         if (neighbors.length > 0) {
           var tile = neighbors[Phaser.Math.Between(0, neighbors.length - 1)]
           this.draw3.setValueAt(tile.row, tile.col, fireValue)
-          this.draw3.customDataOf(tile.row, tile.col).setFrame(fireValue)
+          this.draw3.customDataOf(tile.row, tile.col).setTexture('flames')
           console.log('grow fire')
           var tween = this.tweens.add({
             targets: this.draw3.customDataOf(tile.row, tile.col),
@@ -528,6 +560,7 @@ class playGame extends Phaser.Scene {
     }
     tally.dots += totalDotsThisMove
     this.events.emit('dots', { dots: tally.dots });
+    this.events.emit('tally')
     this.printTally()
   }
   printTally() {
@@ -591,5 +624,65 @@ class playGame extends Phaser.Scene {
         subItem.angle = 0;
       })
     })
+  }
+  toggleMenu() {
+
+    if (this.menuGroup.y == 0) {
+      var menuTween = this.tweens.add({
+        targets: this.menuGroup,
+        y: -270,
+        duration: 500,
+        ease: 'Bounce'
+      })
+
+    }
+    if (this.menuGroup.y == -270) {
+      var menuTween = this.tweens.add({
+        targets: this.menuGroup,
+        y: 0,
+        duration: 500,
+        ease: 'Bounce'
+      })
+    }
+  }
+  makeMenu() {
+    ////////menu
+    this.menuGroup = this.add.container().setDepth(5);
+    var menuBG = this.add.image(game.config.width / 2, game.config.height - 85, 'blank').setOrigin(.5, 0).setTint(0x333333).setAlpha(.8)
+    menuBG.displayWidth = 300;
+    menuBG.displayHeight = 600
+    this.menuGroup.add(menuBG)
+    var menuButton = this.add.image(game.config.width / 2, game.config.height - 40, "menu").setInteractive().setDepth(3);
+    menuButton.on('pointerdown', this.toggleMenu, this)
+    menuButton.setOrigin(0.5);
+    this.menuGroup.add(menuButton);
+    var homeButton = this.add.bitmapText(game.config.width / 2, game.config.height + 50, 'topaz', 'HOME', 50).setOrigin(.5).setTint(0xffffff).setAlpha(1).setInteractive();
+    homeButton.on('pointerdown', function () {
+      this.scene.stop()
+      this.scene.stop('UI')
+      this.scene.start('startGame')
+    }, this)
+    this.menuGroup.add(homeButton);
+    var wordButton = this.add.bitmapText(game.config.width / 2, game.config.height + 140, 'topaz', 'WORDS', 50).setOrigin(.5).setTint(0xffffff).setAlpha(1).setInteractive();
+    wordButton.on('pointerdown', function () {
+      var data = {
+        yesWords: this.foundWords,
+        noWords: this.notWords
+      }
+      this.scene.pause()
+      //this.scene.launch('wordsPlayed', data)
+    }, this)
+    this.menuGroup.add(wordButton);
+    var helpButton = this.add.bitmapText(game.config.width / 2, game.config.height + 230, 'topaz', 'RESTART', 50).setOrigin(.5).setTint(0xffffff).setAlpha(1).setInteractive();
+    helpButton.on('pointerdown', function () {
+
+      this.scene.start('UI')
+      this.scene.start('PlayGame')
+    }, this)
+    this.menuGroup.add(helpButton);
+    //var thankYou = game.add.button(game.config.width / 2, game.config.height + 130, "thankyou", function(){});
+    // thankYou.setOrigin(0.5);
+    // menuGroup.add(thankYou);    
+    ////////end menu
   }
 }
