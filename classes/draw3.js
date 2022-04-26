@@ -64,16 +64,16 @@ class Draw3 {
       }
     }
     if (levelSettings.allowWild) {
-      this.addSpecial(3, wildValue)
+      this.addSpecial(levelSettings.wildStartCount, wildValue)
     }
     if (levelSettings.allowFire) {
-      this.addSpecial(3, fireValue)
+      this.addSpecial(levelSettings.fireStartCount, fireValue)
     }
     if (levelSettings.allowGems) {
-      this.addSpecial(2, 'gem')
+      this.addSpecial(levelSettings.gemsStartCount, 'gem')
     }
     if (levelSettings.allowGolden) {
-      this.addSpecial(3, goldenValue)
+      this.addSpecial(levelSettings.goldenStartCount, goldenValue)
     }
     if (levelSettings.allowRover) {
       this.addSpecial(3, 'rover')
@@ -82,10 +82,10 @@ class Draw3 {
       this.addBlocks()
     }
     if (levelSettings.allowIce) {
-      this.addIce(3)
+      this.addIce(levelSettings.iceStartCount)
     }
     if (levelSettings.allowBomb) {
-      this.addBomb(3)
+      this.addBomb(levelSettings.bombStartCount)
     }
     this.fillValues()
     //console.log(this.gameArrayExtra)
@@ -605,7 +605,7 @@ class Draw3 {
     for (var n = 0; n < 4; n++) {
       var rand = Phaser.Math.Between(0, levelSettings.items - 1)
       if (this.validPick(row + dirs4[n].r, column + dirs4[n].c) && this.valueAt(row + dirs4[n].r, column + dirs4[n].c) == fireValue) {
-        this.gameArray[row + dirs4[n].r][column + dirs4[n].c].customData.setFrame(rand)
+        this.gameArray[row + dirs4[n].r][column + dirs4[n].c].customData.setTexture('gems', rand)
         this.gameArray[row + dirs4[n].r][column + dirs4[n].c].value = rand;
 
         result.push({ r: row + dirs4[n].r, c: column + dirs4[n].c })

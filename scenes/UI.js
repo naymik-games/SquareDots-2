@@ -1,3 +1,4 @@
+let timedEvent
 class UI extends Phaser.Scene {
 
   constructor() {
@@ -10,31 +11,37 @@ class UI extends Phaser.Scene {
 
   }
   create() {
-    console.log(levelSettings)
-    this.header = this.add.image(game.config.width / 2, 15, 'blank').setOrigin(.5, 0).setTint(0xfafafa);
-    this.header.displayWidth = 870;
-    this.header.displayHeight = 200;
+
+    this.header = this.add.image(game.config.width / 2, 0, 'blank').setOrigin(.5, 0).setTint(0xf7484e).setAlpha(.8);
+    this.header.displayWidth = 900;
+    this.header.displayHeight = 225;
 
     this.initialTime = gameOptions.defaultTime
     if (gameOptions.gameMode == 'time') {
       timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, loop: true });
-      this.time = this.add.bitmapText(85, 100, 'topaz', this.formatTime(this.initialTime), 80).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
-      this.totalclearedText = this.add.bitmapText(445, 100, 'topaz', '0', 80).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+      this.time = this.add.bitmapText(85, 100, 'topaz', this.formatTime(this.initialTime), 130).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
+      this.totalclearedText = this.add.bitmapText(445, 100, 'topaz', '0', 100).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
       this.levelText = this.add.bitmapText(860, 65, 'topaz', 'Best', 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
-      this.bestText = this.add.bitmapText(860, 160, 'topaz', gameSettings.mostDotsTime, 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
+      //  this.bestText = this.add.bitmapText(860, 160, 'topaz', gameSettings.mostDotsTime, 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
 
 
     } else if (gameOptions.gameMode == 'moves') {
-      this.totalMovesText = this.add.bitmapText(85, 100, 'topaz', levelSettings.movesGoal, 80).setOrigin(.5).setTint(0x000000).setAlpha(1);
-      this.totalclearedText = this.add.bitmapText(445, 100, 'topaz', '0', 80).setOrigin(0, .5).setTint(0x000000).setAlpha(1);
+      this.totalMovesText = this.add.bitmapText(85, 100, 'topaz', levelSettings.movesGoal, 120).setOrigin(.5).setTint(0xf5f5f5).setAlpha(1);
+
+      this.totalclearedText = this.add.bitmapText(445, 100, 'topaz', '0', 100).setOrigin(0, .5).setTint(0x000000).setAlpha(1);
       this.levelText = this.add.bitmapText(860, 65, 'topaz', 'Best', 50).setOrigin(1, .5).setTint(0x000000).setAlpha(1);
       //this.bestText = this.add.bitmapText(860, 160, 'topaz', gameSettings.mostDotsMoves, 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
 
     } else {
-      this.totalMovesText = this.add.bitmapText(85, 100, 'topaz', levelSettings.movesGoal, 80).setOrigin(.5).setTint(0xcbf7ff).setAlpha(1);
+      this.totalMovesText = this.add.bitmapText(95, 100, 'topaz', levels[onLevel].movesGoal, 130).setOrigin(.5).setTint(0xf5f5f5).setAlpha(1);
+
+      var levelBG = this.add.image(game.config.width, game.config.height, 'blank').setOrigin(1).setTint(0x333333).setAlpha(.8)
+      levelBG.displayWidth = 150;
+      levelBG.displayHeight = 175
+
       var temp = onLevel + 1;
-      this.levelText = this.add.bitmapText(860, 65, 'topaz', 'L ' + temp, 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
-      this.totalclearedText = this.add.bitmapText(860, 160, 'topaz', '0', 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
+      this.levelText = this.add.bitmapText(860, 1520, 'topaz', 'L ' + temp, 50).setOrigin(1, .5).setTint(0xf7484e).setAlpha(1);
+      this.totalclearedText = this.add.bitmapText(860, 1600, 'topaz', '0', 50).setOrigin(1, .5).setTint(0x4c4f4d).setAlpha(1);
       this.setupGoals();
     }
 
@@ -56,6 +63,15 @@ class UI extends Phaser.Scene {
 
       if (gameOptions.gameMode != 'time') {
         this.totalMovesText.setText(levelSettings.movesGoal - this.movesLeft)
+        if (levelSettings.movesGoal - this.movesLeft < 4) {
+          TweenHelper.flashElement(this, this.totalMovesText);
+        }
+        if (levelSettings.movesGoal - this.movesLeft == 0) {
+          alert('game over')
+          this.scene.pause('PlayGame');
+          this.scene.launch("endGame", { outcome: 1, movesLeft: this.movesLeft, totalRemoved: this.dots });
+          this.scene.pause('UI');
+        }
       }
     }, this);
     if (gameOptions.gameMode == 'challenge') {
@@ -85,13 +101,15 @@ class UI extends Phaser.Scene {
 
   update() {
     if (gameOptions.gameMode == 'time') {
+
       if (this.initialTime <= 0) {
-        this.scene.pause('playGame');
+        alert('game over')
+        this.scene.pause('PlayGame');
         this.scene.launch("endGame", { outcome: 1, movesLeft: this.movesLeft, totalRemoved: this.dots });
         this.scene.pause('UI');
-        if (appSettings.music) {
-          this.main.backgroundMusic.pause()
-        }
+        /*  if (appSettings.music) {
+           this.main.backgroundMusic.pause()
+         } */
 
 
       }
@@ -119,9 +137,14 @@ class UI extends Phaser.Scene {
     var i = 0;
     var j = 0;
     var x = 0;
-    var y = 75;
+    var y = 65;
     this.winCount = 0;
     this.winComplete = 0;
+    var xOffsetT = 260
+    var xOffsetI = 320
+    var xSpace = 220
+    var labelSize = 70
+    var labelColor = 0x000000
     Object.entries(levels[onLevel].win).forEach(([key, value]) => {
 
 
@@ -133,8 +156,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.greenIcon = this.add.image(220 + x * 200, y, 'gems', 3).setScale(.7).setAlpha(1);
-        this.greenText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.greenIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 3).setScale(.7).setAlpha(1);
+        this.greenText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
         this.greenGoal = value;
         this.greenText.setText(value);
         this.greenWin = true;
@@ -150,8 +173,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.redIcon = this.add.image(220 + x * 200, y, 'gems', 0).setScale(.7).setAlpha(1);
-        this.redText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.redIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 0).setScale(.7).setAlpha(1);
+        this.redText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
         this.redGoal = value;
         this.redText.setText(value);
         this.redWin = true;
@@ -166,8 +189,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.purpleIcon = this.add.image(220 + x * 200, y, 'gems', 4).setScale(.7).setAlpha(1);
-        this.purpleText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.purpleIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 4).setScale(.7).setAlpha(1);
+        this.purpleText = this.add.bitmapText(xOffseI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
 
         this.purpleGoal = value;
         this.purpleText.setText(value);
@@ -183,8 +206,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.orangeIcon = this.add.image(220 + x * 200, y, 'gems', 2).setScale(.7).setAlpha(1);
-        this.orangeText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.orangeIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 2).setScale(.7).setAlpha(1);
+        this.orangeText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
 
         this.orangeGoal = value;
         this.orangeText.setText(value);
@@ -201,8 +224,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.brownIcon = this.add.image(220 + x * 200, y, 'gems', 5).setScale(.7).setAlpha(1);
-        this.brownText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.brownIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 5).setScale(.7).setAlpha(1);
+        this.brownText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
 
         this.brownGoal = value;
         this.brownText.setText(value);
@@ -219,8 +242,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.blueIcon = this.add.image(220 + x * 200, y, 'gems', 1).setScale(.7).setAlpha(1);
-        this.blueText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.blueIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 1).setScale(.7).setAlpha(1);
+        this.blueText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
 
         this.blueGoal = value;
         this.blueText.setText(value);
@@ -231,15 +254,15 @@ class UI extends Phaser.Scene {
 
       }
 
-      if (key == 'circle') {
+      if (key == 'golden') {
         if (i > 2) {
           y = 160;
           x = i - 3;
         } else {
           x = i;
         }
-        this.dropIcon = this.add.image(220 + x * 200, y, 'gems', 8).setScale(.7).setAlpha(1);
-        this.dropText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.dropIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 10).setScale(.7).setAlpha(1);
+        this.dropText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
         this.dropGoal = value;
         this.dropText.setText(value);
         this.dropWin = true;
@@ -255,8 +278,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.iceIcon = this.add.image(220 + x * 200, y, 'gems', 16).setScale(.7).setAlpha(1);
-        this.iceText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.iceIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 7).setScale(.7).setAlpha(1);
+        this.iceText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
         this.iceGoal = value;
         this.iceText.setText(value);
         this.iceWin = true;
@@ -272,8 +295,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.bombIcon = this.add.image(220 + x * 200, y, 'gems', 23).setScale(.7).setAlpha(1);
-        this.bombText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.bombIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 6).setScale(.7).setAlpha(1);
+        this.bombText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
         this.bombGoal = value;
         this.bombText.setText(value);
         this.bombWin = true;
@@ -288,8 +311,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.sixIcon = this.add.image(220 + x * 200, y, 'gems', 9).setScale(.7).setAlpha(1);
-        this.sixText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.sixIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 11).setScale(.7).setAlpha(1);
+        this.sixText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
         this.sixGoal = value;
         this.sixText.setText(value);
         this.sixWin = true;
@@ -304,8 +327,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.roverIcon = this.add.image(220 + x * 200, y, 'rover', 1).setScale(.7).setAlpha(1);
-        this.roverText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.roverIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 1).setScale(.7).setAlpha(1);
+        this.roverText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
         this.roverGoal = value;
         this.roverText.setText(value);
         this.roverWin = true;
@@ -320,8 +343,8 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.bombIcon = this.add.image(220 + x * 200, y, 'gems', 30).setScale(.7).setAlpha(1);
-        this.bombText = this.add.bitmapText(270 + x * 200, y, 'topaz', '0', 50).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+        this.bombIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 8).setScale(.7).setAlpha(1);
+        this.bombText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
         this.bombGoal = value;
         this.bombText.setText(value);
         this.bombWin = true;
@@ -402,8 +425,8 @@ class UI extends Phaser.Scene {
       }
     }
     if (this.dropWin) {
-      this.dropText.setText(this.dropGoal - tally.circle);
-      if (tally.circle >= this.dropGoal) {
+      this.dropText.setText(this.dropGoal - tally.gold);
+      if (tally.gold >= this.dropGoal) {
         this.tweenCount(this.dropText, this.dropIcon);
         this.dropGoal = -100
         this.winComplete++;
@@ -455,12 +478,13 @@ class UI extends Phaser.Scene {
       var time = this.time.addEvent({
         delay: 1500,
         callback: function () {
-          this.scene.pause('playGame');
+          alert('You won!')
+          this.scene.pause('PlayGame');
           this.scene.launch("endGame", { outcome: 1, movesLeft: levelSettings.movesGoal - this.movesLeft, level: onLevel });
           this.scene.pause('UI');
-          if (appSettings.music) {
+          /* if (appSettings.music) {
             this.main.backgroundMusic.pause()
-          }
+          } */
         },
         callbackScope: this
       })

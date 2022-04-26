@@ -1,193 +1,157 @@
+menuOptions = {
+  colors: ["0xffffff", "0xff0000", "0x00ff00", "0x0000ff", "0xffff00"],
+  pages: 5,
+  columns: 3,
+  rows: 4,
+  thumbWidth: 250,
+  thumbHeight: 250,
+  spacing: 20,
+  localStorageName: "levelselect"
+}
 class selectGame extends Phaser.Scene {
   constructor() {
     super("selectGame");
   }
   preload() {
-
-
+    this.load.spritesheet("levelthumb", "assets/sprites/select_icons.png", {
+      frameWidth: 300,
+      frameHeight: 300
+    });
+    this.load.image("levelpages", "assets/sprites/levelpages.png");
+    this.load.image("transp", "assets/sprites/transp.png");
   }
   create() {
-	  this.cameras.main.setBackgroundColor(0xf7eac6);
-    this.startGroup = onGroup;
-    this.playText = this.add.bitmapText(game.config.width / 2, 75, 'atari', 'NEXT >', 60).setOrigin(.5, .5).setTint(0xc76210).setInteractive();
-    this.playText.level = -1;
-    /*  this.playText.on('pointerdown', function(){
-        this.scene.start("PlayGame");
-      }, this);*/
-this.swipe = false;
-
-    this.showGroup(this.startGroup);
-    this.return = this.add.image(game.config.width / 2, 1550,'menu_icons', 5).setScale(1.5).setInteractive().setTint(0xc76210);
-
-    //this.backText = this.add.bitmapText(game.config.width / 2, 1500, 'atari', '< back', 60).setOrigin(.5, .5).setTint(0xd8a603).setInteractive();
-    this.return.level = -2;
-
-    this.input.on('gameobjectup', this.clickHandler, this);
-   // this.input.on('poimterdown', this.down,this);
-   // this.input.on('pointermove', this.move,this);
-    //this.input.on('pointerup', this.up,this);
-
-  }
-
-down(e){
-  
-}
-move(e){
- // console.log(e.downX - e.x)
-  if((e.downX - e.x) > 55 || (e.downX - e.x) > -55){
-    this.swipe = true;
-    
-  }
-} 
-up(e){
-  if(e.downX < e.x){
-      console.log('right')
-    } else {
-      console.log('left')
+    menuOptions.pages = groups.length
+    this.stars = [];
+    this.stars[0] = 0;
+    this.canMove = true;
+    this.itemGroup = this.add.group();
+    for (var l = 1; l < menuOptions.columns * menuOptions.rows * menuOptions.pages; l++) {
+      this.stars[l] = -1;
     }
-}
-
-  showGroup(groupNum) {
-    if (this.groupBox) {
-      //  this.groupBox.destroy(true);
-      //this.hideGroup();
-    }
-    var groupBox = this.add.container().setDepth(2);
-    var tempGroup = groupNum + 1;
-    var groupTitle = this.add.bitmapText(game.config.width / 2, 200, 'atari', groups[groupNum].title, 60).setTint(0xbf5846).setOrigin(.5).setMaxWidth(500);
-    groupBox.add(groupTitle);
-    var groupText = this.add.bitmapText(game.config.width / 2, 1400, 'atari', tempGroup + '/' + groups.length, 60).setTint(0xbf5846).setOrigin(.5).setMaxWidth(500);
-    groupBox.add(groupText);
-    //	var levelNum = groupNum + (groups[groupNum].puzzleCount -1);
-
-    var levelNum = groups[groupNum].startNum;
+    this.savedData = localStorage.getItem(menuOptions.localStorageName) == null ? this.stars.toString() : localStorage.getItem(menuOptions.localStorageName);
+    this.stars = this.savedData.split(",");
+    this.pageText = this.add.bitmapText(game.config.width / 2, 75, 'topaz', "Groups (1 / " + menuOptions.pages + ")", 80).setOrigin(.5).setTint(0xffffff).setAlpha(1);
 
 
-    for (var i = 0; i < groups[groupNum].numLevels; i++) {
-      if(i < 3){
-		 var xpos = 50 + i * 275;
-		 var ypos = 400; 
-	  } else if(i < 6){
-		 var xpos = 50 + (i - 3) * 275;
-		 var ypos = 400 + 275; 
-	  } else if(i < 9){
-		 var xpos = 50 + (i - 6) * 275;
-		 var ypos = 400 + 550; 
-	  } else {
-		 var xpos = 50 + (i - 9) * 275;
-		 var ypos = 400 + 825; 
-	  }
-	     
-      var tempLevel = levelNum + 1;
-      var statusText = this.add.bitmapText(xpos + 112.5, ypos - 60, 'atari', tempLevel, 70).setOrigin(.5).setTint(0x298191);
-	  var levelTitle = this.add.image(xpos,ypos, 'select_icons', 0).setOrigin(0,.5).setScale(.75);
-	  levelTitle.level = levelNum;
+    this.pageText.setOrigin(0.5);
+    this.scrollingMap = this.add.tileSprite(0, 0, menuOptions.pages * game.config.width, game.config.height, "transp");
+    this.scrollingMap.setInteractive();
+    this.input.setDraggable(this.scrollingMap);
+    this.scrollingMap.setOrigin(0, 0);
+    this.currentPage = 0;
+    this.pageSelectors = [];
+    var rowLength = menuOptions.thumbWidth * menuOptions.columns + menuOptions.spacing * (menuOptions.columns - 1);
+    var leftMargin = (game.config.width - rowLength) / 2 + menuOptions.thumbWidth / 2;
+    var colHeight = menuOptions.thumbHeight * menuOptions.rows + menuOptions.spacing * (menuOptions.rows - 1);
+    var topMargin = (game.config.height - colHeight) / 2 + menuOptions.thumbHeight / 2;
+    for (var k = 0; k < menuOptions.colors.length; k++) {
+      for (var i = 0; i < menuOptions.columns; i++) {
+        for (var j = 0; j < menuOptions.rows; j++) {
+          var thumb = this.add.image(k * game.config.width + leftMargin + i * (menuOptions.thumbWidth + menuOptions.spacing), topMargin + j * (menuOptions.thumbHeight + menuOptions.spacing), "levelthumb");
+          thumb.displayWidth = 250;
+          thumb.displayHeight = 250;
+          //thumb.setTint(menuOptions.colors[k]);
+          thumb.levelNumber = k * (menuOptions.rows * menuOptions.columns) + j * menuOptions.columns + i;
+          thumb.setFrame(parseInt(this.stars[thumb.levelNumber]) + 1);
+          this.itemGroup.add(thumb);
 
+          var levelText = this.add.bitmapText(thumb.x, thumb.y - 60, 'topaz', thumb.levelNumber, 100).setOrigin(.5).setTint(0x000000).setAlpha(1);
 
-
-      if (gameSettings.levelStatus[levelNum] < 0) {
-        //levelTitle.setAlpha(.5)
-			levelTitle.setFrame(4);
-        
-      } else {
-        levelTitle.setInteractive();
-        if (gameSettings.levelStatus[levelNum] == 0) {
-          
-        } else if (gameSettings.levelStatus[levelNum] == '*') {
-          levelTitle.setFrame(1);
-        } else if (gameSettings.levelStatus[levelNum] == '**') {
-          levelTitle.setFrame(2);
-
-        } else if (gameSettings.levelStatus[levelNum] == '***') {
-          levelTitle.setFrame(3);
-
+          this.itemGroup.add(levelText);
         }
-
       }
-
-
-
-      levelNum++;
-      groupBox.add(levelTitle);
-      groupBox.add(statusText);
+      this.pageSelectors[k] = this.add.sprite(game.config.width / 2 + (k - Math.floor(menuOptions.pages / 2) + 0.5 * (1 - menuOptions.pages % 2)) * 40, game.config.height - 140, "levelpages");
+      this.pageSelectors[k].setInteractive();
+      this.pageSelectors[k].on("pointerdown", function () {
+        if (this.scene.canMove) {
+          var difference = this.pageIndex - this.scene.currentPage;
+          this.scene.changePage(difference);
+          this.scene.canMove = false;
+        }
+      });
+      this.pageSelectors[k].pageIndex = k;
+      this.pageSelectors[k].tint = menuOptions.colors[k];
+      if (k == this.currentPage) {
+        this.pageSelectors[k].scaleY = 1;
+      }
+      else {
+        this.pageSelectors[k].scaleY = 0.5;
+      }
     }
-
-
-
-
-    groupBox.add(groupText);
-
-    groupBox.setPosition(game.config.width, 0);
-    this.groupBox = groupBox;
+    this.input.on("dragstart", function (pointer, gameObject) {
+      gameObject.startPosition = gameObject.x;
+      gameObject.currentPosition = gameObject.x;
+    });
+    this.input.on("drag", function (pointer, gameObject, dragX, dragY) {
+      if (dragX <= 10 && dragX >= -gameObject.width + game.config.width - 10) {
+        gameObject.x = dragX;
+        var delta = gameObject.x - gameObject.currentPosition;
+        gameObject.currentPosition = dragX;
+        this.itemGroup.children.iterate(function (item) {
+          item.x += delta;
+        });
+      }
+    }, this);
+    this.input.on("dragend", function (pointer, gameObject) {
+      this.canMove = false;
+      var delta = gameObject.startPosition - gameObject.x;
+      if (delta == 0) {
+        this.canMove = true;
+        this.itemGroup.children.iterate(function (item) {
+          if (item.texture.key == "levelthumb") {
+            var boundingBox = item.getBounds();
+            if (Phaser.Geom.Rectangle.Contains(boundingBox, pointer.x, pointer.y) && item.frame.name > 0) {
+              onLevel = item.levelNumber
+              levelSettings = levels[onLevel]
+              this.scene.start("PlayGame");
+              this.scene.launch('UI')
+            }
+          }
+        }, this);
+      }
+      if (delta > game.config.width / 8) {
+        this.changePage(1);
+      }
+      else {
+        if (delta < -game.config.width / 8) {
+          this.changePage(-1);
+        }
+        else {
+          this.changePage(0);
+        }
+      }
+    }, this);
+    //this.changePage(3)
+  }
+  changePage(page) {
+    this.currentPage += page;
+    for (var k = 0; k < menuOptions.pages; k++) {
+      if (k == this.currentPage) {
+        this.pageSelectors[k].scaleY = 1;
+      }
+      else {
+        this.pageSelectors[k].scaleY = 0.5;
+      }
+    }
+    this.pageText.text = "Groups (" + (this.currentPage + 1).toString() + " / " + menuOptions.pages + ")";
+    var currentPosition = this.scrollingMap.x;
     this.tweens.add({
-      targets: this.groupBox,
-      //alpha: .5,
-      x: 0,
-      duration: 500,
-
-      //delay: 500,
-      //  yoyo: true,
+      targets: this.scrollingMap,
+      x: this.currentPage * -game.config.width,
+      duration: 300,
+      ease: "Cubic.easeOut",
       callbackScope: this,
-      onComplete: function() {
-
+      onUpdate: function (tween, target) {
+        var delta = target.x - currentPosition;
+        currentPosition = target.x;
+        this.itemGroup.children.iterate(function (item) {
+          item.x += delta;
+        });
+      },
+      onComplete: function () {
+        this.canMove = true;
       }
     });
   }
-
-  hideGroup(num) {
-    this.tweens.add({
-      targets: this.groupBox,
-      //alpha: .5,
-      //  x: game.config.width,
-      x: -850,
-      duration: 500,
-      //  yoyo: true,
-      callbackScope: this,
-      onComplete: function() {
-        this.groupBox.destroy(true);
-        this.showGroup(num);
-      }
-    });
-
-  }
-
-
-  clickHandler(e, block) {
-    if(this.swipe){
-      if(e.downX < e.x){
-      console.log('right')
-    } else {
-      console.log('left')
-    }
-      
-      this.swipe = false;
-      return
-      
-    }
-    if (block.level == -1) {
-
-      if (this.startGroup < groups.length - 1) {
-        this.startGroup++;
-      } else {
-        this.startGroup = 0
-      }
-      this.hideGroup(this.startGroup);
-      //   this.showGroup(this.startGroup);
-    } else if (block.level == -2) {
-      this.scene.start('startGame');
-    } else {
-      onLevel = block.level;
-      onGroup = this.startGroup;
-      //gameMode = 'challenge'
-      this.scene.pause();
-	  this.scene.launch('preview',{level: block.level, group: this.startGroup})
-      //this.scene.start('playGame');
-      //this.scene.launch('UI');
-    }
-
-  }
-
-
-
-
 }

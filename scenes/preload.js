@@ -74,16 +74,24 @@ class preloadGame extends Phaser.Scene {
 
 
     //this.load.image("particle", "assets/sprites/particle.png");
-    this.load.bitmapFont('topaz', 'assets/fonts/topaz.png', 'assets/fonts/topaz.xml');
+    this.load.bitmapFont('topaz', 'assets/fonts/lato_0.png', 'assets/fonts/lato.xml');
     this.load.spritesheet("menu_icons", "assets/sprites/icons.png", {
       frameWidth: 96,
       frameHeight: 96
     });
-    this.load.spritesheet("gems", "assets/sprites/gems_smaller.png", {
+    this.load.spritesheet("gems", "assets/sprites/gems_smaller_round.png", {
       frameWidth: 100,
       frameHeight: 100
     });
     this.load.spritesheet("burst", "assets/sprites/burst.png", {
+      frameWidth: 100,
+      frameHeight: 100
+    });
+    this.load.spritesheet("goal_icons", "assets/sprites/goal_icons.png", {
+      frameWidth: 100,
+      frameHeight: 100
+    });
+    this.load.spritesheet("flames", "assets/sprites/flames.png", {
       frameWidth: 100,
       frameHeight: 100
     });
@@ -92,9 +100,27 @@ class preloadGame extends Phaser.Scene {
       frameHeight: 6
     });
 
-
+    this.load.image('check', 'assets/sprites/check.png');
     this.load.image('blank', 'assets/sprites/blank.png');
+    this.load.image('menu', 'assets/sprites/menu.png');
 
+    this.load.image("back_00", "assets/sprites/backs/back_00.png");
+    this.load.image("back_01", "assets/sprites/backs/back_01.png");
+    this.load.image("back_02", "assets/sprites/backs/back_02.png");
+    this.load.image("back_03", "assets/sprites/backs/back_03.png");
+    this.load.image("back_04", "assets/sprites/backs/back_04.png");
+    this.load.image("back_05", "assets/sprites/backs/back_05.png");
+    this.load.image("back_06", "assets/sprites/backs/back_06.png");
+    this.load.image("back_07", "assets/sprites/backs/back_07.png");
+    this.load.image("back_08", "assets/sprites/backs/back_08.png");
+    this.load.image("back_09", "assets/sprites/backs/back_09.png");
+    this.load.image("back_10", "assets/sprites/backs/back_10.png");
+    this.load.image("back_11", "assets/sprites/backs/back_11.png");
+    this.load.image("back_12", "assets/sprites/backs/back_12.png");
+    this.load.image("back_13", "assets/sprites/backs/back_13.png");
+    this.load.image("back_14", "assets/sprites/backs/back_14.png");
+    this.load.image("back_15", "assets/sprites/backs/back_15.png");
+    this.load.image("back_16", "assets/sprites/backs/back_16.png");
   }
   create() {
     this.scene.start("startGame");
