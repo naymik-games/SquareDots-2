@@ -67,8 +67,8 @@ let gameData;
 var defaultValues = {
   mostDotsMoves: 0,
   mostDotsTime: 0,
-  levelStatus: [0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-  totalSquares: 0,
-  group: 0,
-  currentLevel: 0
+  levelStatus: [0, -1],
+
+  onGroup: 0,
+  onLevel: 0
 }

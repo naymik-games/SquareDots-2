@@ -22,6 +22,8 @@ class selectGame extends Phaser.Scene {
   }
   create() {
     menuOptions.pages = groups.length
+
+    var back = this.add.image(0, 0, 'select_back').setOrigin(0)
     this.stars = [];
     this.stars[0] = 0;
     this.canMove = true;
@@ -29,8 +31,8 @@ class selectGame extends Phaser.Scene {
     for (var l = 1; l < menuOptions.columns * menuOptions.rows * menuOptions.pages; l++) {
       this.stars[l] = -1;
     }
-    this.savedData = localStorage.getItem(menuOptions.localStorageName) == null ? this.stars.toString() : localStorage.getItem(menuOptions.localStorageName);
-    this.stars = this.savedData.split(",");
+    //this.savedData = localStorage.getItem(menuOptions.localStorageName) == null ? this.stars.toString() : localStorage.getItem(menuOptions.localStorageName);
+    //this.stars = this.savedData.split(",");
     this.pageText = this.add.bitmapText(game.config.width / 2, 75, 'topaz', "Groups (1 / " + menuOptions.pages + ")", 80).setOrigin(.5).setTint(0xffffff).setAlpha(1);
 
 
@@ -45,7 +47,7 @@ class selectGame extends Phaser.Scene {
     var leftMargin = (game.config.width - rowLength) / 2 + menuOptions.thumbWidth / 2;
     var colHeight = menuOptions.thumbHeight * menuOptions.rows + menuOptions.spacing * (menuOptions.rows - 1);
     var topMargin = (game.config.height - colHeight) / 2 + menuOptions.thumbHeight / 2;
-    for (var k = 0; k < menuOptions.colors.length; k++) {
+    for (var k = 0; k < menuOptions.pages; k++) {
       for (var i = 0; i < menuOptions.columns; i++) {
         for (var j = 0; j < menuOptions.rows; j++) {
           var thumb = this.add.image(k * game.config.width + leftMargin + i * (menuOptions.thumbWidth + menuOptions.spacing), topMargin + j * (menuOptions.thumbHeight + menuOptions.spacing), "levelthumb");
@@ -53,10 +55,11 @@ class selectGame extends Phaser.Scene {
           thumb.displayHeight = 250;
           //thumb.setTint(menuOptions.colors[k]);
           thumb.levelNumber = k * (menuOptions.rows * menuOptions.columns) + j * menuOptions.columns + i;
-          thumb.setFrame(parseInt(this.stars[thumb.levelNumber]) + 1);
+          //console.log(gameData.levelStatus[thumb.levelNumber - 1])
+          thumb.setFrame(this.getFrame(gameData.levelStatus[thumb.levelNumber]));
           this.itemGroup.add(thumb);
 
-          var levelText = this.add.bitmapText(thumb.x, thumb.y - 60, 'topaz', thumb.levelNumber, 100).setOrigin(.5).setTint(0x000000).setAlpha(1);
+          var levelText = this.add.bitmapText(thumb.x, thumb.y - 60, 'topaz', thumb.levelNumber + 1, 100).setOrigin(.5).setTint(0x000000).setAlpha(1);
 
           this.itemGroup.add(levelText);
         }
@@ -104,8 +107,10 @@ class selectGame extends Phaser.Scene {
             if (Phaser.Geom.Rectangle.Contains(boundingBox, pointer.x, pointer.y) && item.frame.name > 0) {
               onLevel = item.levelNumber
               levelSettings = levels[onLevel]
-              this.scene.start("PlayGame");
-              this.scene.launch('UI')
+              this.scene.pause()
+              this.scene.launch('preview', { level: onLevel, group: this.currentPage });
+              //this.scene.start("PlayGame");
+              //this.scene.launch('UI')
             }
           }
         }, this);
@@ -153,5 +158,20 @@ class selectGame extends Phaser.Scene {
         this.canMove = true;
       }
     });
+  }
+  getFrame(val) {
+    var frame
+    if (val == -1) {
+      frame = 0
+    } else if (val == 0) {
+      frame = 1
+    } else if (val == 1) {
+      frame = 2
+    } else if (val == 2) {
+      frame = 3
+    } else if (val == 3) {
+      frame = 4
+    }
+    return frame
   }
 }

@@ -8,13 +8,22 @@ class startGame extends Phaser.Scene {
 
   }
   create() {
-    /*
-      gameSettings = JSON.parse(localStorage.getItem('SDsave'));
-      if (gameSettings === null || gameSettings.length <= 0) {
-        localStorage.setItem('SDsave', JSON.stringify(defaultValues));
-        gameSettings = defaultValues;
+    var back = this.add.image(0, 0, 'select_back').setOrigin(0)
+
+    gameData = JSON.parse(localStorage.getItem('SD2save'));
+    if (gameData === null || gameData.length <= 0) {
+      localStorage.setItem('SD2save', JSON.stringify(defaultValues));
+      gameData = defaultValues;
+    }
+    var lev = levels.length
+    var stat = gameData.levelStatus.length
+    console.log('lev ' + lev + ', ' + 'stat ' + stat)
+    if (lev > stat) {
+      for (var i = 0; i < lev - stat; i++) {
+        gameData.levelStatus.push(-1)
       }
-    */
+      localStorage.setItem('SD2save', JSON.stringify(gameData));
+    }
     this.cameras.main.setBackgroundColor(0xf7eac6);
 
     var title = this.add.bitmapText(game.config.width / 2, 100, 'topaz', 'SquareDots', 150).setOrigin(.5).setTint(0xc76210);

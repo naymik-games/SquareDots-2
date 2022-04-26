@@ -14,7 +14,7 @@ window.onload = function () {
     },
 
 
-    scene: [preloadGame, startGame, selectGame, playGame, UI]
+    scene: [preloadGame, startGame, selectGame, playGame, preview, endGame, UI]
   }
   game = new Phaser.Game(gameConfig);
   window.focus();

@@ -67,9 +67,9 @@ class UI extends Phaser.Scene {
           TweenHelper.flashElement(this, this.totalMovesText);
         }
         if (levelSettings.movesGoal - this.movesLeft == 0) {
-          alert('game over')
+          // alert('game over')
           this.scene.pause('PlayGame');
-          this.scene.launch("endGame", { outcome: 1, movesLeft: this.movesLeft, totalRemoved: this.dots });
+          this.scene.launch("endGame", { outcome: 0, movesLeft: this.movesLeft, totalRemoved: this.dots });
           this.scene.pause('UI');
         }
       }
@@ -103,7 +103,7 @@ class UI extends Phaser.Scene {
     if (gameOptions.gameMode == 'time') {
 
       if (this.initialTime <= 0) {
-        alert('game over')
+        //alert('game over')
         this.scene.pause('PlayGame');
         this.scene.launch("endGame", { outcome: 1, movesLeft: this.movesLeft, totalRemoved: this.dots });
         this.scene.pause('UI');
@@ -478,7 +478,7 @@ class UI extends Phaser.Scene {
       var time = this.time.addEvent({
         delay: 1500,
         callback: function () {
-          alert('You won!')
+          // alert('You won!')
           this.scene.pause('PlayGame');
           this.scene.launch("endGame", { outcome: 1, movesLeft: levelSettings.movesGoal - this.movesLeft, level: onLevel });
           this.scene.pause('UI');
