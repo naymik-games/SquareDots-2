@@ -71,7 +71,8 @@ class playGame extends Phaser.Scene {
       ice: 0,
       bomb: 0,
       moves: 0,
-      dots: 0
+      dots: 0,
+      rover: 0
     }
     this.canPick = true;
     this.square = false;
@@ -137,14 +138,16 @@ class playGame extends Phaser.Scene {
         let gem;
         let posX = gameOptions.boardOffset.x + gameOptions.gemSize * j + gameOptions.gemSize / 2;
         let posY = gameOptions.boardOffset.y + gameOptions.gemSize * i + gameOptions.gemSize / 2
-        if (this.draw3.isRover(i, j)) {
-          console.log(i + ',' + j + 'val ' + this.draw3.roverValueAt(i, j))
-          gem = this.add.sprite(posX, -50, "gems", this.draw3.roverValueAt(i, j));
-        } else if (this.draw3.valueAt(i, j) == fireValue) {
+       /*  if (this.draw3.issquareBomb(i, j)) {
+          console.log(i + ',' + j + 'val ' + this.draw3.squareBombValueAt(i, j))
+          gem = this.add.sprite(posX, -50, "gems", this.draw3.squareBombValueAt(i, j));
+        } else */ if (this.draw3.valueAt(i, j) == fireValue) {
           gem = this.add.sprite(posX, -50, "flames", 0);
           //gem = this.flames.get().setActive(true);
           // gem.setPosition(posX, -50)
           //gem.play('flames1');
+        } if (this.draw3.isRoverAt(i, j)) {
+          gem = this.add.sprite(posX, -50, "gems", this.draw3.valueAt(i, j) + 30);
         } else {
           gem = this.add.sprite(posX, -50, "gems", this.draw3.valueAt(i, j));
         }
@@ -212,8 +215,20 @@ class playGame extends Phaser.Scene {
             delay: 150 * count
           })
           count++
-        } else if (levelSettings.blocks.length > 0) {
-          //console.log('do blocks')
+        } else if (squareBombValues.indexOf(this.draw3.valueAtExtra(i, j)) > -1) {
+          let gem;
+          let posX = gameOptions.boardOffset.x + gameOptions.gemSize * j + gameOptions.gemSize / 2;
+          let posY = gameOptions.boardOffset.y + gameOptions.gemSize * i + gameOptions.gemSize / 2
+          gem = this.add.sprite(posX, -50, "gems", this.draw3.valueAtExtra(i, j)).setDepth(4);
+          this.draw3.setCustomDataExtra(i, j, gem)
+          var tween = this.tweens.add({
+            targets: gem,
+            y: posY,
+            duration: 1000,
+            ease: 'Quad.easeIn',
+            delay: 150 * count
+          })
+          count++
         }
       }
     }
@@ -387,6 +402,13 @@ class playGame extends Phaser.Scene {
               this.growFire()
               this.canPick = true;
               this.dragging = false;
+            } else if (levelSettings.allowSquareBomb) {
+              this.movesquareBombs()
+              this.canPick = true;
+              this.dragging = false;
+            } else if (levelSettings.allowRover) {
+              this.moveRovers()
+
             } else {
               this.canPick = true;
               this.dragging = false;
@@ -401,9 +423,7 @@ class playGame extends Phaser.Scene {
       });
     }.bind(this))
   }
-  removeGemsSpecial() {
 
-  }
   goldenCheck() {
     let result = false
     for (let j = 0; j < this.draw3.getColumns(); j++) {
@@ -485,6 +505,93 @@ class playGame extends Phaser.Scene {
 
 
 
+  }
+  moveRovers() {
+    var cleared = false
+    if (roverSelected.length > 0) {
+
+      roverSelected.forEach(rover => {
+        if (this.draw3.roverStrengthAt(rover.row, rover.column) == 3) {
+          this.draw3.setRoverStrength(rover.row, rover.column, 2)
+          this.draw3.changeRoverValue(rover.row, rover.column, this.draw3.valueAt(rover.row, rover.column))
+          this.draw3.customDataOf(rover.row, rover.column).setFrame(this.draw3.valueAt(rover.row, rover.column) + 36)
+        } else if (this.draw3.roverStrengthAt(rover.row, rover.column) == 2) {
+          this.draw3.setRoverStrength(rover.row, rover.column, 1)
+          this.draw3.changeRoverValue(rover.row, rover.column, this.draw3.valueAt(rover.row, rover.column))
+          this.draw3.customDataOf(rover.row, rover.column).setFrame(this.draw3.valueAt(rover.row, rover.column) + 42)
+        } else if (this.draw3.roverStrengthAt(rover.row, rover.column) == 1) {
+          //remove rover
+          cleared = true;
+          this.draw3.clearRoverAt(rover.row, rover.column)
+          this.draw3.customDataOf(rover.row, rover.column).setFrame(this.draw3.valueAt(rover.row, rover.column)).setAlpha(1).setScale(1)
+          tally.rover++
+          this.events.emit('tally')
+          this.explode(rover.row, rover.column)
+          /* var neighbors = this.draw3.getNeighbors(rover.row, rover.column)
+
+          if (neighbors.length > 0) {
+            //this.draw3.putInChain(rover.row, rover.column)
+            for (var n = 0; n < neighbors.length; n++) {
+              this.draw3.putInChain(neighbors[n].row, neighbors[n].col)
+            }
+          }
+          this.removeGems(1) */
+        }
+      })
+    }
+
+    var rovers = this.draw3.getRovers()
+    if (rovers.length > 0) {
+      rovers.forEach(rover => {
+        var roverVal = this.draw3.valueAt(rover.row, rover.col)
+        this.draw3.customDataOf(rover.row, rover.col).setAlpha(1)
+        this.draw3.customDataOf(rover.row, rover.col).setScale(1)
+
+        var tile = this.draw3.getRandomNeighbor(rover.row, rover.col)
+        this.draw3.setTarget(tile.row, tile.col)
+        var swap = this.draw3.swapItems(rover.row, rover.col, tile.row, tile.col)
+        console.log(swap)
+        //non rover to rover
+        // this.draw3.customDataOf(swap[0].row, swap[0].column).setFrame(roverVal)
+        // this.draw3.setValueAt(swap[0].row, swap[0].column, roverVal)
+        this.draw3.removeTarget(swap[0].row, swap[0].column, roverVal)
+        var tween1 = this.tweens.add({
+          targets: this.draw3.customDataOf(swap[0].row, swap[0].column),
+          x: gameOptions.boardOffset.x + gameOptions.gemSize * rover.col + gameOptions.gemSize / 2,
+          y: gameOptions.boardOffset.y + gameOptions.gemSize * rover.row + gameOptions.gemSize / 2,
+          duration: 200,
+          onCompleteScope: this,
+          onComplete: function () {
+
+            this.canPick = true;
+            this.dragging = false;
+
+
+          }
+
+        });
+        //rover to non rover
+        var tween1 = this.tweens.add({
+          targets: this.draw3.customDataOf(swap[1].row, swap[1].column),
+          x: gameOptions.boardOffset.x + gameOptions.gemSize * tile.col + gameOptions.gemSize / 2,
+          y: gameOptions.boardOffset.y + gameOptions.gemSize * tile.row + gameOptions.gemSize / 2,
+          duration: 200,
+
+        });
+        /*  var tween2 = this.tweens.add({
+           targets: this.gameArray[row][col].gemSprite,
+           x: col * gameOptions.gemSize + gameOptions.gemSize / 2,
+           y: row * gameOptions.gemSize + gameOptions.gemSize / 2,
+           duration: 2000,
+ 
+         }); */
+
+      });
+
+    } else {
+      this.canPick = true;
+      this.dragging = false;
+    }
   }
   doTally(gems) {
     var totalDotsThisMove = 0
@@ -592,6 +699,19 @@ class playGame extends Phaser.Scene {
   }
   explodeBomb(row, col) {
     // Get the first explosion, and activate it.
+
+    this.explode(row, col)
+    this.bombCleared = true
+    var neighbors = this.draw3.getNeighbors(row, col)
+    console.log(neighbors)
+    if (neighbors.length > 0) {
+      this.draw3.putInChain(row, col)
+      for (var n = 0; n < neighbors.length; n++) {
+        this.draw3.putInChain(neighbors[n].row, neighbors[n].col)
+      }
+    }
+  }
+  explode(row, col) {
     var explosion = this.bursts.get().setActive(true);
 
     // Place the explosion on the screen, and play the animation.
@@ -602,16 +722,6 @@ class playGame extends Phaser.Scene {
     explosion.on('animationcomplete', function () {
       explosion.setActive(false);
     }, this);
-
-    this.bombCleared = true
-    var neighbors = this.draw3.getNeighbors(row, col)
-    console.log(neighbors)
-    if (neighbors.length > 0) {
-      this.draw3.putInChain(row, col)
-      for (var n = 0; n < neighbors.length; n++) {
-        this.draw3.putInChain(neighbors[n].row, neighbors[n].col)
-      }
-    }
   }
   displayPath() {
     let path = this.draw3.getPath();

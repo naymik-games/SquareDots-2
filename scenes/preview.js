@@ -242,6 +242,23 @@ class preview extends Phaser.Scene {
         i++;
         j++;
       }
+      if (key == 'squareBomb') {
+        if (i > 2) {
+          y = 760;
+          x = i - 3;
+        } else {
+          x = i;
+        }
+        this.squareBombIcon = this.add.image(220 + x * 200, y, 'squareBomb', 1).setScale(.7).setAlpha(1);
+        this.squareBombText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
+        this.squareBombGoal = value;
+        this.squareBombText.setText(value);
+        this.previewBox.add(this.squareBombIcon);
+        this.previewBox.add(this.squareBombText);
+        i++;
+        j++;
+      }
+
       if (key == 'rover') {
         if (i > 2) {
           y = 760;
@@ -249,7 +266,7 @@ class preview extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.roverIcon = this.add.image(220 + x * 200, y, 'rover', 1).setScale(.7).setAlpha(1);
+        this.roverIcon = this.add.image(220 + x * 200, y, 'goal_icons', 12).setScale(.7).setAlpha(1);
         this.roverText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
         this.roverGoal = value;
         this.roverText.setText(value);
@@ -258,6 +275,7 @@ class preview extends Phaser.Scene {
         i++;
         j++;
       }
+
       if (key == 'bomb') {
         if (i > 2) {
           y = 160;

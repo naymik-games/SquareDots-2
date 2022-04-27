@@ -320,6 +320,22 @@ class UI extends Phaser.Scene {
         i++;
         j++;
       }
+      if (key == 'squareBomb') {
+        if (i > 2) {
+          y = 160;
+          x = i - 3;
+        } else {
+          x = i;
+        }
+        this.squareBombIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 1).setScale(.7).setAlpha(1);
+        this.squareBombText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
+        this.squareBombGoal = value;
+        this.squareBombText.setText(value);
+        this.squareBombWin = true;
+        this.winCount++;
+        i++;
+        j++;
+      }
       if (key == 'rover') {
         if (i > 2) {
           y = 160;
@@ -327,7 +343,7 @@ class UI extends Phaser.Scene {
         } else {
           x = i;
         }
-        this.roverIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 1).setScale(.7).setAlpha(1);
+        this.roverIcon = this.add.image(xOffsetT + x * xSpace, y, 'goal_icons', 12).setScale(.7).setAlpha(1);
         this.roverText = this.add.bitmapText(xOffsetI + x * xSpace, y, 'topaz', '0', labelSize).setOrigin(0, .5).setTint(labelColor).setAlpha(1);
         this.roverGoal = value;
         this.roverText.setText(value);
@@ -460,6 +476,15 @@ class UI extends Phaser.Scene {
         this.sixWin = false;
       }
     }
+    if (this.squareBombWin) {
+      this.squareBombText.setText(this.squareBombGoal - tally.squareBomb);
+      if (tally.squareBomb >= this.squareBombGoal) {
+        this.tweenCount(this.squareBombText, this.squareBombIcon);
+        this.squareBombGoal = -100
+        this.winComplete++;
+        this.squareBombWin = false;
+      }
+    }
     if (this.roverWin) {
       this.roverText.setText(this.roverGoal - tally.rover);
       if (tally.rover >= this.roverGoal) {
@@ -469,7 +494,6 @@ class UI extends Phaser.Scene {
         this.roverWin = false;
       }
     }
-
     if (this.winCount == this.winComplete) {
       // return true;
       //console.log('you win');
