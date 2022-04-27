@@ -42,16 +42,22 @@ class playGame extends Phaser.Scene {
     this.cameras.main.fadeIn(800, 0, 0, 0);
     var bgc = Phaser.Math.Between(0, bgColors.length - 1)
     this.cameras.main.setBackgroundColor(bgColors[bgc]);
+    //this.cameras.main.setBackgroundColor(0x000000);
 
-    var rand = Phaser.Math.Between(0, backs.length - 1)
-    var back = this.add.image(0, 0, backs[rand]).setOrigin(0)
-    back.displayWidth = game.config.width;
-    back.displayHeight = game.config.height;
+    //var rand = Phaser.Math.Between(0, backs.length - 1)
+    //var back = this.add.image(0, 0, backs[rand]).setOrigin(0).setAlpha(.5)
+    //back.displayWidth = game.config.width;
+    //back.displayHeight = game.config.height;
 
 
 
     var xOffset = (game.config.width - (levelSettings.cols * gameOptions.gemSize)) / 2
     gameOptions.boardOffset.x = xOffset
+
+    this.squareBack = this.add.image(xOffset, gameOptions.boardOffset.y, 'blank').setOrigin(0).setAlpha(0)
+    this.squareBack.displayWidth = levelSettings.cols * gameOptions.gemSize
+    this.squareBack.displayHeight = levelSettings.rows * gameOptions.gemSize
+
     tally = {
       red: 0,
       blue: 0,
@@ -223,7 +229,7 @@ class playGame extends Phaser.Scene {
       if (this.draw3.validPick(row, col)) {
         if (this.draw3.checkNonSelect(row, col)) { return }
         this.canPick = false;
-        this.draw3.putInChain(row, col, this.draw3.valueAt(row, col), this.draw3.roverValueAt(row, col))
+        this.draw3.putInChain(row, col, this.draw3.valueAt(row, col))
 
         this.draw3.customDataOf(row, col).alpha = 0.5;
         this.draw3.customDataOf(row, col).setScale(.8)
@@ -242,7 +248,7 @@ class playGame extends Phaser.Scene {
           if (this.draw3.continuesChain(row, col)) {
             this.draw3.customDataOf(row, col).alpha = 0.5;
             this.draw3.customDataOf(row, col).setScale(.8)
-            this.draw3.putInChain(row, col, this.draw3.valueAt(row, col), this.draw3.roverValueAt(row, col));
+            this.draw3.putInChain(row, col, this.draw3.valueAt(row, col));
             this.displayPath()
           } else {
             if (this.draw3.backtracksChain(row, col)) {
@@ -252,6 +258,7 @@ class playGame extends Phaser.Scene {
               this.hidePath();
               this.displayPath();
             } else if (!this.square && this.draw3.makesSquare(row, col)) {
+              this.squareBack.setAlpha(.3)
               this.square = true
               console.log('square')
               //this.displayPath(this.square)
@@ -274,6 +281,9 @@ class playGame extends Phaser.Scene {
     } else {
       tally.moves++
 
+    }
+    if (this.square) {
+      this.squareBack.setAlpha(0)
     }
     this.removeGems(2)
   }

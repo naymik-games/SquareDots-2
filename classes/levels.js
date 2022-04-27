@@ -9,16 +9,16 @@ let groups = [
 ];
 let levels = [
   {
-    title: 'Test', rows: 12, cols: 7, items: 4, movesGoal: 20, background: 0x00cc29,
-    allowWild: true,
+    title: 'Test', rows: 11, cols: 7, items: 4, movesGoal: 20, background: 0x00cc29,
+    allowWild: false,
     wildStartCount: 5,
     allowGems: false, gemsStartCount: 4,
     allowGolden: false, goldenStartCount: 4,
-    allowRover: false, roverStartCount: 0,
+    allowRover: false, roverStartCount: 3,
     allowFire: false, fireStartCount: 4,
-    allowIce: true, iceStartCount: 10,
+    allowIce: false, iceStartCount: 10,
     allowBomb: false, bombStartCount: 4,
-    win: { orange: 10, red: 15, ice: 10, square: 6, blue: 9 },
+    win: { orange: 10, red: 15, square: 6, blue: 9 },
     blocks: []
   },
   {

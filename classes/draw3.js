@@ -103,7 +103,7 @@ class Draw3 {
           this.setValueAt(row, col, num)
         } else if (value == 'rover') {
           var num = Phaser.Math.Between(12, 11 + levelSettings.items)
-          this.setValueAt(row, col, num - 12)
+          this.setValueAt(row, col, num)
           this.setRoverValueAt(row, col, num)
 
         } else {
@@ -243,6 +243,8 @@ class Draw3 {
       } else {
         return !this.isInChain(row, column) && this.areNext(row, column, this.getLastChainItem().row, this.getLastChainItem().column);
       }
+    } else if (roverValues.indexOf(this.valueAt(row, column)) > -1) {
+      return this.getChainValue() == this.valueAt(row, column) - 12
     } else {
       return (this.getChainValue() == this.valueAt(row, column) || this.valueAt(row, column) == wildValue) && !this.isInChain(row, column) && this.areNext(row, column, this.getLastChainItem().row, this.getLastChainItem().column)
     }
@@ -356,8 +358,11 @@ class Draw3 {
     return false;
   }
 
-  // returns the value of items in the chain
+  // returns the value of items in the chainlet roverValues = [12, 13, 14, 15, 16, 17]
   getChainValue() {
+    if (roverValues.indexOf(this.valueAt(this.getNthChainItem(0).row, this.getNthChainItem(0).column)) > -1) {
+      return this.valueAt(this.getNthChainItem(0).row, this.getNthChainItem(0).column) - 12
+    }
     return this.valueAt(this.getNthChainItem(0).row, this.getNthChainItem(0).column)
   }
   addSquareToChain() {
@@ -372,12 +377,12 @@ class Draw3 {
     }
   }
   // puts the item at (row, column) in the chain
-  putInChain(row, column, value, rValue) {
+  putInChain(row, column, value) {
     this.chain.push({
       row: row,
       column: column,
       value: value,
-      roverValue: rValue
+
     })
   }
   putCrossInChain(row, column) {

@@ -144,18 +144,18 @@ class endGame extends Phaser.Scene {
 		var titleText = this.add.bitmapText(450, 475, 'topaz', message, 90).setOrigin(.5).setTint(0xffffff).setAlpha(1);
 		this.previewBox.add(titleText);
 
-		let messText = this.add.bitmapText(450, 625, 'topaz', mess, 60).setOrigin(.5).setTint(0xc76210);
+		let messText = this.add.bitmapText(450, 625, 'topaz', mess, 60).setOrigin(.5).setTint(0xf7484e);
 		this.previewBox.add(messText);
 
 
 		//time or moves
 		if (gameOptions.gameMode != 'challenge') {
-			let resultText = this.add.bitmapText(450, 725, 'topaz', score, 90).setOrigin(.5).setTint(0xc76210);
+			let resultText = this.add.bitmapText(450, 725, 'topaz', score, 120).setOrigin(.5).setTint(0xf7484e);
 			this.previewBox.add(resultText);
-			let highText = this.add.bitmapText(450, 900, 'topaz', 'Best: ' + high, 60).setOrigin(.5).setTint(0x4c4637);
+			let highText = this.add.bitmapText(450, 900, 'topaz', 'Best: ' + high, 80).setOrigin(.5).setTint(0xf7484e);
 			this.previewBox.add(highText);
 			if (this.newBest) {
-				let bestText = this.add.bitmapText(1450, 860, 'topaz', 'NEW!', 40).setOrigin(.5).setTint(0xc76210);
+				let bestText = this.add.bitmapText(1460, 860, 'topaz', 'NEW!', 40).setOrigin(.5).setTint(0xc76210);
 
 				var tween = this.tweens.add({
 					targets: bestText,
@@ -170,7 +170,7 @@ class endGame extends Phaser.Scene {
 		var playText = this.add.bitmapText(625, 1150, 'topaz', 'CONTINUE', 50).setOrigin(.5).setTint(0xffffff).setAlpha(1).setInteractive();
 		this.previewBox.add(playText);
 		//var cancelText = this.add.bitmapText(175,1150, 'topaz', '[X]', 50).setOrigin(.5).setTint(0x000000).setAlpha(1).setInteractive();
-		this.replayIcon = this.add.image(175, 1150, 'menu_icons', 1).setInteractive();
+		this.replayIcon = this.add.image(175, 1150, 'menu_icons', 1).setInteractive().setTint(0xf7484e);
 		this.previewBox.add(this.replayIcon);
 
 		playText.on('pointerdown', this.play, this);

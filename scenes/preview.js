@@ -22,7 +22,7 @@ class preview extends Phaser.Scene {
     var temp = this.level + 1;
     var titleText = this.add.bitmapText(450, 475, 'topaz', 'Level ' + temp, 90).setOrigin(.5).setTint(0xffffff).setAlpha(1);
     this.previewBox.add(titleText);
-    var movesText = this.add.bitmapText(450, 925, 'topaz', 'Moves ' + levels[onLevel].movesGoal, 70).setOrigin(.5).setTint(0xbf5846).setAlpha(1);
+    var movesText = this.add.bitmapText(450, 925, 'topaz', 'Moves ' + levels[onLevel].movesGoal, 70).setOrigin(.5).setTint(0xf7484e).setAlpha(1);
     this.previewBox.add(movesText);
     this.setupGoals();
 
@@ -79,7 +79,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.greenIcon = this.add.image(220 + x * 200, y, 'goal_icons', 3).setScale(.7).setAlpha(1);
-        this.greenText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.greenText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
         this.greenGoal = value;
         this.greenText.setText(value);
         this.previewBox.add(this.greenIcon);
@@ -96,7 +96,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.redIcon = this.add.image(220 + x * 200, y, 'goal_icons', 0).setScale(.7).setAlpha(1);
-        this.redText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.redText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
         this.redGoal = value;
         this.redText.setText(value);
         this.previewBox.add(this.redIcon);
@@ -112,7 +112,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.purpleIcon = this.add.image(220 + x * 200, y, 'goal_icons', 4).setScale(.7).setAlpha(1);
-        this.purpleText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.purpleText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
 
         this.purpleGoal = value;
         this.purpleText.setText(value);
@@ -129,7 +129,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.orangeIcon = this.add.image(220 + x * 200, y, 'goal_icons', 2).setScale(.7).setAlpha(1);
-        this.orangeText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.orangeText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
 
         this.orangeGoal = value;
         this.orangeText.setText(value);
@@ -147,7 +147,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.brownIcon = this.add.image(220 + x * 200, y, 'goal_icons', 5).setScale(.7).setAlpha(1);
-        this.brownText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.brownText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
 
         this.brownGoal = value;
         this.brownText.setText(value);
@@ -165,7 +165,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.blueIcon = this.add.image(220 + x * 200, y, 'goal_icons', 1).setScale(.7).setAlpha(1);
-        this.blueText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.blueText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
 
         this.blueGoal = value;
         this.blueText.setText(value);
@@ -184,7 +184,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.dropIcon = this.add.image(220 + x * 200, y, 'goal_icons', 10).setScale(.7).setAlpha(1);
-        this.dropText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.dropText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
         this.dropGoal = value;
         this.dropText.setText(value);
         this.previewBox.add(this.dropIcon);
@@ -201,7 +201,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.iceIcon = this.add.image(220 + x * 200, y, 'goal_icons', 7).setScale(.7).setAlpha(1);
-        this.iceText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.iceText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
         this.iceGoal = value;
         this.iceText.setText(value);
         this.previewBox.add(this.iceIcon);
@@ -218,7 +218,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.bombIcon = this.add.image(220 + x * 200, y, 'goal_icons', 6).setScale(.7).setAlpha(1);
-        this.bombText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.bombText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
         this.bombGoal = value;
         this.bombText.setText(value);
         this.previewBox.add(this.bombIcon);
@@ -234,7 +234,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.sixIcon = this.add.image(220 + x * 200, y, 'goal_icons', 11).setScale(.7).setAlpha(1);
-        this.sixText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.sixText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
         this.sixGoal = value;
         this.sixText.setText(value);
         this.previewBox.add(this.sixIcon);
@@ -250,7 +250,7 @@ class preview extends Phaser.Scene {
           x = i;
         }
         this.roverIcon = this.add.image(220 + x * 200, y, 'rover', 1).setScale(.7).setAlpha(1);
-        this.roverText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xc76210).setAlpha(1);
+        this.roverText = this.add.bitmapText(280 + x * 200, y, 'topaz', '0', 70).setOrigin(0, .5).setTint(0xf7484e).setAlpha(1);
         this.roverGoal = value;
         this.roverText.setText(value);
         this.previewBox.add(this.roverIcon);

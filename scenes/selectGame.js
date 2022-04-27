@@ -24,6 +24,8 @@ class selectGame extends Phaser.Scene {
     menuOptions.pages = groups.length
 
     var back = this.add.image(0, 0, 'select_back').setOrigin(0)
+    back.displayWidth = 900
+    back.displayHeight = 1640
     this.stars = [];
     this.stars[0] = 0;
     this.canMove = true;
@@ -33,7 +35,8 @@ class selectGame extends Phaser.Scene {
     }
     //this.savedData = localStorage.getItem(menuOptions.localStorageName) == null ? this.stars.toString() : localStorage.getItem(menuOptions.localStorageName);
     //this.stars = this.savedData.split(",");
-    this.pageText = this.add.bitmapText(game.config.width / 2, 75, 'topaz', "Groups (1 / " + menuOptions.pages + ")", 80).setOrigin(.5).setTint(0xffffff).setAlpha(1);
+    this.currentPage = onGroup;
+    this.pageText = this.add.bitmapText(game.config.width / 2, 75, 'topaz', groups[onGroup].title + " (1 / " + menuOptions.pages + ")", 80).setOrigin(.5).setTint(0xffffff).setAlpha(1);
 
 
     this.pageText.setOrigin(0.5);
@@ -41,7 +44,7 @@ class selectGame extends Phaser.Scene {
     this.scrollingMap.setInteractive();
     this.input.setDraggable(this.scrollingMap);
     this.scrollingMap.setOrigin(0, 0);
-    this.currentPage = 0;
+
     this.pageSelectors = [];
     var rowLength = menuOptions.thumbWidth * menuOptions.columns + menuOptions.spacing * (menuOptions.columns - 1);
     var leftMargin = (game.config.width - rowLength) / 2 + menuOptions.thumbWidth / 2;
@@ -64,7 +67,7 @@ class selectGame extends Phaser.Scene {
           this.itemGroup.add(levelText);
         }
       }
-      this.pageSelectors[k] = this.add.sprite(game.config.width / 2 + (k - Math.floor(menuOptions.pages / 2) + 0.5 * (1 - menuOptions.pages % 2)) * 40, game.config.height - 140, "levelpages");
+      this.pageSelectors[k] = this.add.sprite(game.config.width / 2 + (k - Math.floor(menuOptions.pages / 2) + 0.5 * (1 - menuOptions.pages % 2)) * 40, game.config.height - 190, "levelpages");
       this.pageSelectors[k].setInteractive();
       this.pageSelectors[k].on("pointerdown", function () {
         if (this.scene.canMove) {
@@ -128,6 +131,11 @@ class selectGame extends Phaser.Scene {
       }
     }, this);
     //this.changePage(3)
+    var backIcon = this.add.image(game.config.width / 2, 1550, 'menu_icons', 5).setInteractive()
+    backIcon.on('pointerdown', function () {
+      this.scene.stop()
+      this.scene.start('startGame')
+    }, this)
   }
   changePage(page) {
     this.currentPage += page;

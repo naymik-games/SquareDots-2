@@ -19,21 +19,21 @@ class UI extends Phaser.Scene {
     this.initialTime = gameOptions.defaultTime
     if (gameOptions.gameMode == 'time') {
       timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, loop: true });
-      this.time = this.add.bitmapText(85, 100, 'topaz', this.formatTime(this.initialTime), 130).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
-      this.totalclearedText = this.add.bitmapText(445, 100, 'topaz', '0', 100).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
+      this.time = this.add.bitmapText(85, 100, 'topaz', this.formatTime(this.initialTime), 110).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
+      this.totalclearedText = this.add.bitmapText(445, 100, 'topaz', '0', 90).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
       this.levelText = this.add.bitmapText(860, 65, 'topaz', 'Best', 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
       //  this.bestText = this.add.bitmapText(860, 160, 'topaz', gameSettings.mostDotsTime, 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
 
 
     } else if (gameOptions.gameMode == 'moves') {
-      this.totalMovesText = this.add.bitmapText(85, 100, 'topaz', levelSettings.movesGoal, 120).setOrigin(.5).setTint(0xf5f5f5).setAlpha(1);
+      this.totalMovesText = this.add.bitmapText(85, 100, 'topaz', levelSettings.movesGoal, 100).setOrigin(.5).setTint(0xf5f5f5).setAlpha(1);
 
       this.totalclearedText = this.add.bitmapText(445, 100, 'topaz', '0', 100).setOrigin(0, .5).setTint(0x000000).setAlpha(1);
       this.levelText = this.add.bitmapText(860, 65, 'topaz', 'Best', 50).setOrigin(1, .5).setTint(0x000000).setAlpha(1);
       //this.bestText = this.add.bitmapText(860, 160, 'topaz', gameSettings.mostDotsMoves, 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
 
     } else {
-      this.totalMovesText = this.add.bitmapText(95, 100, 'topaz', levels[onLevel].movesGoal, 130).setOrigin(.5).setTint(0xf5f5f5).setAlpha(1);
+      this.totalMovesText = this.add.bitmapText(95, 100, 'topaz', levels[onLevel].movesGoal, 100).setOrigin(.5).setTint(0xf5f5f5).setAlpha(1);
 
       var levelBG = this.add.image(game.config.width, game.config.height, 'blank').setOrigin(1).setTint(0x333333).setAlpha(.8)
       levelBG.displayWidth = 150;
