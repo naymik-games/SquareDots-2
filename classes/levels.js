@@ -18,8 +18,8 @@ let levels = [
     allowFire: false, fireStartCount: 4,
     allowIce: false, iceStartCount: 10,
     allowBomb: true, bombStartCount: 4,
-    allowRover: true, roverStartCount: 3,
-    win: { orange: 10, red: 15, square: 6, blue: 9, rover: 3 },
+    allowRover: false, roverStartCount: 3,
+    win: { orange: 10, red: 15, square: 6, blue: 9, bomb: 3 },
     blocks: []
   },
   {

@@ -41,7 +41,7 @@ class startGame extends Phaser.Scene {
 
   }
   clickHandler() {
-    gameOptions.gameMode = 'moves'
+    gameMode = 'moves'
 
     levelSettings = defaultLevel
 
@@ -49,13 +49,13 @@ class startGame extends Phaser.Scene {
     this.scene.launch('UI');
   }
   clickHandler2() {
-    gameOptions.gameMode = 'time'
+    gameMode = 'time'
     levelSettings = defaultLevel
     this.scene.start('PlayGame');
     this.scene.launch('UI');
   }
   clickHandler3() {
-    gameOptions.gameMode = 'challenge'
+    gameMode = 'challenge'
     this.scene.start('selectGame');
     // this.scene.launch('UI');
   }

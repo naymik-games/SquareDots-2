@@ -72,6 +72,8 @@ class preloadGame extends Phaser.Scene {
 
 
 
+    // this.load.plugin('SceneWatcher', 'https://cdn.jsdelivr.net/npm/phaser-plugin-scene-watcher@6.0.0/dist/phaser-plugin-scene-watcher.umd.js', true);
+
 
     //this.load.image("particle", "assets/sprites/particle.png");
     this.load.bitmapFont('topaz', 'assets/fonts/gothic.png', 'assets/fonts/gothic.xml');
@@ -125,6 +127,7 @@ class preloadGame extends Phaser.Scene {
     this.load.image("back_14", "assets/sprites/backs/back_14.png");
     this.load.image("back_15", "assets/sprites/backs/back_15.png");
     this.load.image("back_16", "assets/sprites/backs/back_16.png");
+
   }
   create() {
     this.scene.start("startGame");

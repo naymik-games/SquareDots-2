@@ -29,7 +29,7 @@ class endGame extends Phaser.Scene {
 
 		//this.previewBox.add(star); 
 
-		if (gameOptions.gameMode == 'challenge') {
+		if (gameMode == 'challenge') {
 
 			if (this.outcome == 1) {
 				this.timeline = this.tweens.createTimeline();
@@ -117,7 +117,7 @@ class endGame extends Phaser.Scene {
 			var score = this.totalBlocksRemoved;
 
 
-			if (gameOptions.gameMode == 'time') {
+			if (gameMode == 'time') {
 				if (this.totalBlocksRemoved > gameData.mostDotsTime) {
 					gameData.mostDotsTime = this.totalBlocksRemoved;
 					var high = this.totalBlocksRemoved;
@@ -125,7 +125,7 @@ class endGame extends Phaser.Scene {
 				} else {
 					var high = gameData.mostDotsTime;
 				}
-			} else if (gameOptions.gameMode == 'moves') {
+			} else if (gameMode == 'moves') {
 				if (this.totalBlocksRemoved > gameData.mostDotsMoves) {
 
 					gameData.mostDotsMoves = this.totalBlocksRemoved;
@@ -149,7 +149,7 @@ class endGame extends Phaser.Scene {
 
 
 		//time or moves
-		if (gameOptions.gameMode != 'challenge') {
+		if (gameMode != 'challenge') {
 			let resultText = this.add.bitmapText(450, 725, 'topaz', score, 120).setOrigin(.5).setTint(0xf7484e);
 			this.previewBox.add(resultText);
 			let highText = this.add.bitmapText(450, 900, 'topaz', 'Best: ' + high, 80).setOrigin(.5).setTint(0xf7484e);
@@ -197,7 +197,7 @@ class endGame extends Phaser.Scene {
 		this.scene.stop('PlayGame');
 		this.scene.stop('endGame');
 		this.scene.stop('UI');
-		if (gameOptions.gameMode == 'challenge') {
+		if (gameMode == 'challenge') {
 			this.scene.start('selectGame')
 		} else {
 			this.scene.start('startGame')
@@ -212,7 +212,7 @@ class endGame extends Phaser.Scene {
 		let posX = (gameOptions.offsetX + gameOptions.gemSize * levelOptions.cols + gameOptions.gemSize / 2) / 2;
 		let posY = gameOptions.offsetY + gameOptions.gemSize * levelOptions.rows + gameOptions.gemSize / 2;
 		let fieldHeight = gameOptions.offsetY + gameOptions.gemSize * levelOptions.rows + gameOptions.gemSize;
-		if (gameOptions.gameOptions.gameMode == 'challenge') {
+		if (gameOptions.gameMode == 'challenge') {
 			if (this.outcome == 1) {
 				var message = 'Success!'
 				gameData.levelStatus[onLevel + 1] = 0;

@@ -39,6 +39,13 @@ class playGame extends Phaser.Scene {
     });
   }
   create() {
+    if (gameMode == 'moves') {
+      levelSettings = defaultLevel
+    } else if (gameMode == 'time') {
+      levelSettings = defaultLevel
+    } else {
+      levelSettings = levels[onLevel]
+    }
     this.cameras.main.fadeIn(800, 0, 0, 0);
     var bgc = Phaser.Math.Between(0, bgColors.length - 1)
     this.cameras.main.setBackgroundColor(bgColors[bgc]);
@@ -126,6 +133,7 @@ class playGame extends Phaser.Scene {
     });
 
     this.makeMenu()
+    console.log(tally)
     //this.burst = this.add.sprite(200, 300, 'burst').setScale(3);
   }
   drawField() {
@@ -295,7 +303,7 @@ class playGame extends Phaser.Scene {
 
     } else {
       tally.moves++
-
+      this.events.emit('moves', { moves: tally.moves })
     }
     if (this.square) {
       this.squareBack.setAlpha(0)
@@ -408,11 +416,11 @@ class playGame extends Phaser.Scene {
               this.dragging = false;
             } else if (levelSettings.allowRover) {
               this.moveRovers()
-
+              this.events.emit('moves', { moves: tally.moves })
             } else {
               this.canPick = true;
               this.dragging = false;
-              this.events.emit('moves', { moves: tally.moves })
+
             }
             // 
 
@@ -779,8 +787,9 @@ class playGame extends Phaser.Scene {
     var homeButton = this.add.bitmapText(game.config.width / 2, game.config.height + 50, 'topaz', 'HOME', 50).setOrigin(.5).setTint(0xffffff).setAlpha(1).setInteractive();
     homeButton.on('pointerdown', function () {
       this.scene.stop()
-      this.scene.stop('UI')
+
       this.scene.start('startGame')
+      this.scene.stop('UI')
     }, this)
     this.menuGroup.add(homeButton);
     var wordButton = this.add.bitmapText(game.config.width / 2, game.config.height + 140, 'topaz', 'WORDS', 50).setOrigin(.5).setTint(0xffffff).setAlpha(1).setInteractive();
@@ -795,9 +804,11 @@ class playGame extends Phaser.Scene {
     this.menuGroup.add(wordButton);
     var helpButton = this.add.bitmapText(game.config.width / 2, game.config.height + 230, 'topaz', 'RESTART', 50).setOrigin(.5).setTint(0xffffff).setAlpha(1).setInteractive();
     helpButton.on('pointerdown', function () {
+      this.scene.stop()
+      this.scene.stop('UI')
 
-      this.scene.start('UI')
       this.scene.start('PlayGame')
+      this.scene.start('UI')
     }, this)
     this.menuGroup.add(helpButton);
     //var thankYou = game.add.button(game.config.width / 2, game.config.height + 130, "thankyou", function(){});

@@ -11,13 +11,15 @@ class UI extends Phaser.Scene {
 
   }
   create() {
-
+    this.winCount = -1;
+    this.winComplete = -10;
+    this.movesLeft = 0
     this.header = this.add.image(game.config.width / 2, 0, 'blank').setOrigin(.5, 0).setTint(0xf7484e).setAlpha(.8);
     this.header.displayWidth = 900;
     this.header.displayHeight = 225;
 
     this.initialTime = gameOptions.defaultTime
-    if (gameOptions.gameMode == 'time') {
+    if (gameMode == 'time') {
       timedEvent = this.time.addEvent({ delay: 1000, callback: this.onEvent, callbackScope: this, loop: true });
       this.time = this.add.bitmapText(85, 100, 'topaz', this.formatTime(this.initialTime), 110).setOrigin(0, .5).setTint(0xcbf7ff).setAlpha(1);
       this.totalclearedText = this.add.bitmapText(445, 100, 'topaz', '0', 90).setOrigin(0, .5).setTint(0xffffff).setAlpha(1);
@@ -25,14 +27,14 @@ class UI extends Phaser.Scene {
       //  this.bestText = this.add.bitmapText(860, 160, 'topaz', gameSettings.mostDotsTime, 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
 
 
-    } else if (gameOptions.gameMode == 'moves') {
+    } else if (gameMode == 'moves') {
       this.totalMovesText = this.add.bitmapText(85, 100, 'topaz', levelSettings.movesGoal, 100).setOrigin(.5).setTint(0xf5f5f5).setAlpha(1);
 
       this.totalclearedText = this.add.bitmapText(445, 100, 'topaz', '0', 100).setOrigin(0, .5).setTint(0x000000).setAlpha(1);
       this.levelText = this.add.bitmapText(860, 65, 'topaz', 'Best', 50).setOrigin(1, .5).setTint(0x000000).setAlpha(1);
       //this.bestText = this.add.bitmapText(860, 160, 'topaz', gameSettings.mostDotsMoves, 50).setOrigin(1, .5).setTint(0xffffff).setAlpha(1);
 
-    } else {
+    } else if (gameMode == 'challenge') {
       this.totalMovesText = this.add.bitmapText(95, 100, 'topaz', levels[onLevel].movesGoal, 100).setOrigin(.5).setTint(0xf5f5f5).setAlpha(1);
 
       var levelBG = this.add.image(game.config.width, game.config.height, 'blank').setOrigin(1).setTint(0x333333).setAlpha(.8)
@@ -61,7 +63,8 @@ class UI extends Phaser.Scene {
     Main.events.on('moves', function (data) {
       this.movesLeft = data.moves;
 
-      if (gameOptions.gameMode != 'time') {
+      if (gameMode != 'time') {
+        console.log('goal' + levelSettings.movesGoal + ' left ' + this.movesLeft)
         this.totalMovesText.setText(levelSettings.movesGoal - this.movesLeft)
         if (levelSettings.movesGoal - this.movesLeft < 4) {
           TweenHelper.flashElement(this, this.totalMovesText);
@@ -74,7 +77,7 @@ class UI extends Phaser.Scene {
         }
       }
     }, this);
-    if (gameOptions.gameMode == 'challenge') {
+    if (gameMode == 'challenge') {
       Main.events.on('tally', function () {
 
         this.winConditions();
@@ -91,7 +94,7 @@ class UI extends Phaser.Scene {
     Main.events.on('addmoves', function (data) {
       this.movesLeft -= data.amount;
 
-      if (gameOptions.gameMode != 'time') {
+      if (gameMode != 'time') {
         this.totalMovesText.setText(levelSettings.movesGoal - this.movesLeft)
       }
     }, this);
@@ -100,7 +103,7 @@ class UI extends Phaser.Scene {
   }
 
   update() {
-    if (gameOptions.gameMode == 'time') {
+    if (gameMode == 'time') {
 
       if (this.initialTime <= 0) {
         //alert('game over')

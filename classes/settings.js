@@ -7,11 +7,11 @@ let gameOptions = {
     x: 100,
     y: 250
   },
-  gameMode: 'moves',
+
   defaultTime: 15,
 
 }
-
+let gameMode = 'moves'
 let bgColors = [
   0x000000,
   0x36454F,

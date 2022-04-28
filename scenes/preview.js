@@ -49,7 +49,7 @@ class preview extends Phaser.Scene {
   play() {
     onLevel = this.level;
     onGroup = this.group;
-    gameOptions.gameMode = 'challenge'
+    gameMode = 'challenge'
     this.scene.stop();
     this.scene.stop('selectGame')
     this.scene.start('PlayGame');
